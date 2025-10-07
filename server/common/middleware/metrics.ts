@@ -28,28 +28,9 @@ export const activeConnections = new Gauge({
 });
 
 export const metricsPlugin: FastifyPluginAsync = async (fastify) => {
-  // Metrics endpoint
-  fastify.get('/metrics', async (_request, reply) => {
-    reply.header('Content-Type', register.contentType);
-    return register.metrics();
-  });
-
-  // Request tracking hook
-  fastify.addHook('onRequest', async (_request, _reply) => {
-    activeConnections.inc();
-  });
-
-  fastify.addHook('onResponse', async (request, reply) => {
-    activeConnections.dec();
-    
-    const duration = reply.getResponseTime() / 1000; // Convert to seconds
-    
-    httpRequestDuration
-      .labels(request.method, request.routerPath || 'unknown', String(reply.statusCode))
-      .observe(duration);
-    
-    httpRequestTotal
-      .labels(request.method, request.routerPath || 'unknown', String(reply.statusCode))
-      .inc();
+  // Register metrics endpoint
+  await fastify.get('/metrics', async (_, reply) => {
+    reply.type(register.contentType);
+    reply.send(await register.metrics());
   });
 };

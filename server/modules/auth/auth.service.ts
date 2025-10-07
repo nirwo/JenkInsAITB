@@ -22,11 +22,11 @@ export async function comparePassword(password: string, hash: string): Promise<b
 }
 
 export function generateAccessToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions);
 }
 
 export function generateRefreshToken(userId: string): string {
-  return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
+  return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN } as jwt.SignOptions);
 }
 
 export async function verifyToken(token: string): Promise<TokenPayload> {
@@ -147,7 +147,8 @@ export async function register(data: {
 }
 
 export async function refreshAccessToken(refreshToken: string) {
-  const payload = await verifyRefreshToken(refreshToken);
+  // Verify the refresh token
+  await verifyRefreshToken(refreshToken);
 
   const tokenRecord = await prisma.refreshToken.findUnique({
     where: { token: refreshToken },

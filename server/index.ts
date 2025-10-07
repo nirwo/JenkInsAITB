@@ -58,37 +58,45 @@ async function main() {
       trpcOptions: {
         router: appRouter,
         createContext,
-        onError({ path, error }) {
-          logger.error(`Error in tRPC handler on path '${path}':`, error);
+        onError(opts: any) {
+          logger.error(`Error in tRPC handler on path '${opts.path}':`, opts.error);
         },
       },
     });
 
     // Health check endpoint
-    server.get('/health', async (_request, reply) => {
-      const health = {
+    server.get('/health', async () => {
+      return {
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        memory: process.memoryUsage(),
-        redis: redis.status === 'ready' ? 'connected' : 'disconnected',
       };
-      return reply.code(200).send(health);
     });
 
-    // Ready check endpoint
-    server.get('/ready', async (_request, reply) => {
-      if (redis.status !== 'ready') {
-        return reply.code(503).send({ status: 'not ready', reason: 'redis not connected' });
+    // Ready check endpoint (includes Redis connectivity)
+    server.get('/ready', async () => {
+      try {
+        await redis.ping();
+        return {
+          status: 'ready',
+          redis: 'connected',
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        return {
+          status: 'not_ready',
+          redis: 'disconnected',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString(),
+        };
       }
-      return reply.code(200).send({ status: 'ready' });
     });
 
     // Start server
     await server.listen({ port: PORT, host: HOST });
     logger.info(`🚀 Server listening on http://${HOST}:${PORT}`);
     logger.info(`📊 Metrics available at http://${HOST}:${PORT}/metrics`);
-    logger.info(`🔍 Health check at http://${HOST}:${PORT}/health`);
+    logger.info(`🔌 tRPC endpoint at http://${HOST}:${PORT}/trpc`);
   } catch (err) {
     logger.error('Error starting server:', err);
     process.exit(1);
@@ -96,8 +104,8 @@ async function main() {
 }
 
 // Graceful shutdown
-const gracefulShutdown = async () => {
-  logger.info('Shutting down gracefully...');
+const gracefulShutdown = async (signal: string) => {
+  logger.info(`${signal} received, closing server gracefully...`);
   
   try {
     await server.close();
@@ -110,8 +118,8 @@ const gracefulShutdown = async () => {
   }
 };
 
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Start the server
-void main();
+main();
