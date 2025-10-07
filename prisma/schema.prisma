@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  passwordHash  String    @map("password_hash")
+  role          UserRole  @default(USER)
+  firstName     String?   @map("first_name")
+  lastName      String?   @map("last_name")
+  avatar        String?
+  isActive      Boolean   @default(true) @map("is_active")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model JenkinsInstance {
+  id          String   @id @default(uuid())
+  name        String
+  url         String
+  username    String
+  apiToken    String   @map("api_token")
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  lastSyncAt  DateTime @map("last_sync_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  jobs      Job[]
+  executors Executor[]
+
+  @@unique([url])
+  @@map("jenkins_instances")
+}
+
+model Job {
+  id                String   @id @default(uuid())
+  jenkinsInstanceId String   @map("jenkins_instance_id")
+  name              String
+  displayName       String?  @map("display_name")
+  url               String
+  type              JobType  @default(FREESTYLE)
+  color             String?
+  description       String?
+  buildable         Boolean  @default(true)
+  inQueue           Boolean  @default(false) @map("in_queue")
+  lastBuildNumber   Int?     @map("last_build_number")
+  lastBuildStatus   String?  @map("last_build_status")
+  lastBuildTime     DateTime? @map("last_build_time")
+  healthScore       Int?     @map("health_score")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  jenkinsInstance JenkinsInstance @relation(fields: [jenkinsInstanceId], references: [id], onDelete: Cascade)
+  builds          Build[]
+  labels          JobLabel[]
+
+  @@unique([jenkinsInstanceId, name])
+  @@index([jenkinsInstanceId])
+  @@index([type])
+  @@index([lastBuildStatus])
+  @@map("jobs")
+}
+
+model Build {
+  id              String       @id @default(uuid())
+  jobId           String       @map("job_id")
+  buildNumber     Int          @map("build_number")
+  status          BuildStatus  @default(RUNNING)
+  result          String?
+  duration        Int?
+  estimatedDuration Int?       @map("estimated_duration")
+  timestamp       DateTime
+  url             String
+  description     String?
+  building        Boolean      @default(true)
+  builtOn         String?      @map("built_on")
+  changeSet       Json?        @map("change_set")
+  culprits        Json?
+  parameters      Json?
+  logSize         BigInt?      @map("log_size")
+  hasLogAnalysis  Boolean      @default(false) @map("has_log_analysis")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  job          Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  logAnalysis  LogAnalysis?
+  
+  @@unique([jobId, buildNumber])
+  @@index([jobId])
+  @@index([status])
+  @@index([timestamp])
+  @@map("builds")
+}
+
+model LogAnalysis {
+  id              String   @id @default(uuid())
+  buildId         String   @unique @map("build_id")
+  summary         String
+  rootCause       String?  @map("root_cause")
+  errorCategory   String?  @map("error_category")
+  stackTrace      String?  @map("stack_trace")
+  failedTests     Json?    @map("failed_tests")
+  recommendations Json?
+  sentiment       String?
+  processingTime  Int      @map("processing_time")
+  model           String   @default("gpt-4-turbo-preview")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  build Build @relation(fields: [buildId], references: [id], onDelete: Cascade)
+
+  @@index([buildId])
+  @@index([errorCategory])
+  @@map("log_analyses")
+}
+
+model Executor {
+  id                String   @id @default(uuid())
+  jenkinsInstanceId String   @map("jenkins_instance_id")
+  number            Int
+  displayName       String   @map("display_name")
+  idle              Boolean  @default(true)
+  offline           Boolean  @default(false)
+  currentBuild      Json?    @map("current_build")
+  currentWorkUnit   String?  @map("current_work_unit")
+  worktree          String?
+  labels            String[]
+  stats             Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  jenkinsInstance JenkinsInstance @relation(fields: [jenkinsInstanceId], references: [id], onDelete: Cascade)
+  history         ExecutorHistory[]
+
+  @@unique([jenkinsInstanceId, number])
+  @@index([jenkinsInstanceId])
+  @@index([idle])
+  @@index([offline])
+  @@map("executors")
+}
+
+model ExecutorHistory {
+  id          String   @id @default(uuid())
+  executorId  String   @map("executor_id")
+  buildId     String?  @map("build_id")
+  jobName     String   @map("job_name")
+  buildNumber Int      @map("build_number")
+  status      String
+  startedAt   DateTime @map("started_at")
+  finishedAt  DateTime? @map("finished_at")
+  duration    Int?
+  worktree    String?
+
+  executor Executor @relation(fields: [executorId], references: [id], onDelete: Cascade)
+
+  @@index([executorId])
+  @@index([startedAt])
+  @@map("executor_history")
+}
+
+model Label {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  color       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  jobs JobLabel[]
+
+  @@map("labels")
+}
+
+model JobLabel {
+  jobId     String @map("job_id")
+  labelId   String @map("label_id")
+  
+  job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, labelId])
+  @@map("job_labels")
+}
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String             @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  read      Boolean            @default(false)
+  createdAt DateTime           @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  action      String
+  resource    String
+  resourceId  String?  @map("resource_id")
+  details     Json?
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  VIEWER
+}
+
+enum JobType {
+  FREESTYLE
+  PIPELINE
+  MULTIBRANCH
+  FOLDER
+  MAVEN
+}
+
+enum BuildStatus {
+  RUNNING
+  SUCCESS
+  FAILURE
+  UNSTABLE
+  ABORTED
+  NOT_BUILT
+}
+
+enum NotificationType {
+  BUILD_FAILED
+  BUILD_SUCCEEDED
+  EXECUTOR_OFFLINE
+  SYSTEM_ALERT
+  INFO
+}
