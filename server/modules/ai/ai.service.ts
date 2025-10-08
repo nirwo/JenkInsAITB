@@ -19,7 +19,7 @@ interface LogAnalysis {
   sentiment: string | null;
 }
 
-export async function analyzeLogWithAI(buildUrl: string): Promise<LogAnalysis> {
+export async function analyzeLogWithAI(buildUrl: string, jenkinsAuth?: { username: string; apiToken: string }): Promise<LogAnalysis> {
   if (!ENABLE_AI) {
     logger.warn('AI analysis is disabled');
     return getMockAnalysis();
@@ -28,7 +28,16 @@ export async function analyzeLogWithAI(buildUrl: string): Promise<LogAnalysis> {
   try {
     // Fetch log content
     const logUrl = `${buildUrl}/consoleText`;
+    const headers: Record<string, string> = {};
+    
+    // Add authentication if provided
+    if (jenkinsAuth) {
+      const auth = Buffer.from(`${jenkinsAuth.username}:${jenkinsAuth.apiToken}`).toString('base64');
+      headers['Authorization'] = `Basic ${auth}`;
+    }
+    
     const response = await axios.get(logUrl, {
+      headers,
       maxContentLength: 140 * 1024 * 1024, // 140MB
       timeout: 30000,
     });

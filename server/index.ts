@@ -8,6 +8,8 @@ import { appRouter } from './router';
 import { createContext } from './context';
 import { logger } from './common/utils/logger';
 import { metricsPlugin } from './common/middleware/metrics';
+import { JenkinsSyncService } from './modules/jenkins/jenkins-sync.service';
+import { prisma } from './infrastructure/database/prisma';
 import Redis from 'ioredis';
 
 const PORT = Number(process.env.API_PORT) || 3001;
@@ -23,6 +25,10 @@ redis.on('connect', () => {
 redis.on('error', err => {
   logger.error('Redis connection error:', err);
 });
+
+// Initialize Jenkins Sync Service
+const pollInterval = Number(process.env.JENKINS_POLL_INTERVAL) || 30000;
+export const jenkinsSyncService = new JenkinsSyncService(prisma, pollInterval);
 
 // Create Fastify server
 const server = Fastify({
@@ -97,6 +103,10 @@ async function main() {
     logger.info(`🚀 Server listening on http://${HOST}:${PORT}`);
     logger.info(`📊 Metrics available at http://${HOST}:${PORT}/metrics`);
     logger.info(`🔌 tRPC endpoint at http://${HOST}:${PORT}/trpc`);
+    
+    // Start Jenkins sync service
+    jenkinsSyncService.start();
+    logger.info(`🔄 Jenkins sync service started (polling every ${pollInterval}ms)`);
   } catch (err) {
     logger.error('Error starting server:', err);
     process.exit(1);
@@ -108,6 +118,7 @@ const gracefulShutdown = async (signal: string) => {
   logger.info(`${signal} received, closing server gracefully...`);
   
   try {
+    jenkinsSyncService.stop();
     await server.close();
     await redis.quit();
     logger.info('Server closed successfully');

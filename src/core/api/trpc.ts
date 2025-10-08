@@ -8,10 +8,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 export const trpc = createTRPCReact<AppRouter>();
 
 export const trpcClient = trpc.createClient({
-  transformer: superjson,
   links: [
     httpBatchLink({
       url: `${API_URL}/trpc`,
+      transformer: superjson,
       headers() {
         const token = localStorage.getItem('accessToken');
         return {
@@ -24,10 +24,10 @@ export const trpcClient = trpc.createClient({
 
 // Vanilla client for use outside React components
 export const trpcVanilla = createTRPCProxyClient<AppRouter>({
-  transformer: superjson,
   links: [
     httpBatchLink({
       url: `${API_URL}/trpc`,
+      transformer: superjson,
       headers() {
         const token = localStorage.getItem('accessToken');
         return {

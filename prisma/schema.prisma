@@ -3,23 +3,23 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  username      String    @unique
-  passwordHash  String    @map("password_hash")
-  role          UserRole  @default(USER)
-  firstName     String?   @map("first_name")
-  lastName      String?   @map("last_name")
-  avatar        String?
-  isActive      Boolean   @default(true) @map("is_active")
-  lastLoginAt   DateTime? @map("last_login_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id           String    @id @default(uuid())
+  email        String    @unique
+  username     String    @unique
+  passwordHash String    @map("password_hash")
+  role         UserRole  @default(USER)
+  firstName    String?   @map("first_name")
+  lastName     String?   @map("last_name")
+  avatar       String?
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
@@ -42,41 +42,52 @@ model RefreshToken {
 }
 
 model JenkinsInstance {
-  id          String   @id @default(uuid())
-  name        String
-  url         String
-  username    String
-  apiToken    String   @map("api_token")
-  description String?
-  isActive    Boolean  @default(true) @map("is_active")
-  lastSyncAt  DateTime @map("last_sync_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id              String    @id @default(uuid())
+  name            String
+  url             String
+  username        String
+  apiToken        String    @map("api_token") // Encrypted
+  description     String?
+  isActive        Boolean   @default(true) @map("is_active")
+  isPrimary       Boolean   @default(false) @map("is_primary") // Primary master in cluster
+  clusterId       String?   @map("cluster_id") // For grouping multiple masters
+  loadBalancerUrl String?   @map("load_balancer_url") // Load balancer endpoint if using one
+  priority        Int       @default(0) // For load balancing priority
+  healthCheckUrl  String?   @map("health_check_url") // Custom health check endpoint
+  maxConnections  Int       @default(100) @map("max_connections") // Max concurrent connections
+  currentLoad     Int       @default(0) @map("current_load") // Current active connections
+  lastHealthCheck DateTime? @map("last_health_check")
+  healthStatus    String    @default("unknown") @map("health_status") // healthy, degraded, unhealthy
+  lastSyncAt      DateTime  @default(now()) @map("last_sync_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   jobs      Job[]
   executors Executor[]
 
   @@unique([url])
+  @@index([clusterId])
+  @@index([isActive, healthStatus])
   @@map("jenkins_instances")
 }
 
 model Job {
-  id                String   @id @default(uuid())
-  jenkinsInstanceId String   @map("jenkins_instance_id")
+  id                String    @id @default(uuid())
+  jenkinsInstanceId String    @map("jenkins_instance_id")
   name              String
-  displayName       String?  @map("display_name")
+  displayName       String?   @map("display_name")
   url               String
-  type              JobType  @default(FREESTYLE)
+  type              JobType   @default(FREESTYLE)
   color             String?
   description       String?
-  buildable         Boolean  @default(true)
-  inQueue           Boolean  @default(false) @map("in_queue")
-  lastBuildNumber   Int?     @map("last_build_number")
-  lastBuildStatus   String?  @map("last_build_status")
+  buildable         Boolean   @default(true)
+  inQueue           Boolean   @default(false) @map("in_queue")
+  lastBuildNumber   Int?      @map("last_build_number")
+  lastBuildStatus   String?   @map("last_build_status")
   lastBuildTime     DateTime? @map("last_build_time")
-  healthScore       Int?     @map("health_score")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  healthScore       Int?      @map("health_score")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   jenkinsInstance JenkinsInstance @relation(fields: [jenkinsInstanceId], references: [id], onDelete: Cascade)
   builds          Build[]
@@ -90,29 +101,29 @@ model Job {
 }
 
 model Build {
-  id              String       @id @default(uuid())
-  jobId           String       @map("job_id")
-  buildNumber     Int          @map("build_number")
-  status          BuildStatus  @default(RUNNING)
-  result          String?
-  duration        Int?
-  estimatedDuration Int?       @map("estimated_duration")
-  timestamp       DateTime
-  url             String
-  description     String?
-  building        Boolean      @default(true)
-  builtOn         String?      @map("built_on")
-  changeSet       Json?        @map("change_set")
-  culprits        Json?
-  parameters      Json?
-  logSize         BigInt?      @map("log_size")
-  hasLogAnalysis  Boolean      @default(false) @map("has_log_analysis")
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
+  id                String      @id @default(uuid())
+  jobId             String      @map("job_id")
+  buildNumber       Int         @map("build_number")
+  status            BuildStatus @default(RUNNING)
+  result            String?
+  duration          Int?
+  estimatedDuration Int?        @map("estimated_duration")
+  timestamp         DateTime
+  url               String
+  description       String?
+  building          Boolean     @default(true)
+  builtOn           String?     @map("built_on")
+  changeSet         String?     @map("change_set")  // JSON as string for SQLite
+  culprits          String?     // JSON as string for SQLite
+  parameters        String?     // JSON as string for SQLite
+  logSize           Int?        @map("log_size")  // SQLite doesn't support BigInt
+  hasLogAnalysis    Boolean     @default(false) @map("has_log_analysis")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
 
-  job          Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  logAnalysis  LogAnalysis?
-  
+  job         Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  logAnalysis LogAnalysis?
+
   @@unique([jobId, buildNumber])
   @@index([jobId])
   @@index([status])
@@ -148,15 +159,15 @@ model Executor {
   displayName       String   @map("display_name")
   idle              Boolean  @default(true)
   offline           Boolean  @default(false)
-  currentBuild      Json?    @map("current_build")
+  currentBuild      String?  @map("current_build")  // JSON as string for SQLite
   currentWorkUnit   String?  @map("current_work_unit")
   worktree          String?
-  labels            String[]
-  stats             Json?
+  labels            String?  // Comma-separated labels for SQLite compatibility
+  stats             String?  // JSON as string for SQLite compatibility
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
-  jenkinsInstance JenkinsInstance @relation(fields: [jenkinsInstanceId], references: [id], onDelete: Cascade)
+  jenkinsInstance JenkinsInstance   @relation(fields: [jenkinsInstanceId], references: [id], onDelete: Cascade)
   history         ExecutorHistory[]
 
   @@unique([jenkinsInstanceId, number])
@@ -167,13 +178,13 @@ model Executor {
 }
 
 model ExecutorHistory {
-  id          String   @id @default(uuid())
-  executorId  String   @map("executor_id")
-  buildId     String?  @map("build_id")
-  jobName     String   @map("job_name")
-  buildNumber Int      @map("build_number")
+  id          String    @id @default(uuid())
+  executorId  String    @map("executor_id")
+  buildId     String?   @map("build_id")
+  jobName     String    @map("job_name")
+  buildNumber Int       @map("build_number")
   status      String
-  startedAt   DateTime @map("started_at")
+  startedAt   DateTime  @map("started_at")
   finishedAt  DateTime? @map("finished_at")
   duration    Int?
   worktree    String?
@@ -198,9 +209,9 @@ model Label {
 }
 
 model JobLabel {
-  jobId     String @map("job_id")
-  labelId   String @map("label_id")
-  
+  jobId   String @map("job_id")
+  labelId String @map("label_id")
+
   job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
   label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
 
@@ -209,14 +220,14 @@ model JobLabel {
 }
 
 model Notification {
-  id        String             @id @default(uuid())
-  userId    String             @map("user_id")
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
   type      NotificationType
   title     String
   message   String
   data      Json?
-  read      Boolean            @default(false)
-  createdAt DateTime           @default(now()) @map("created_at")
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -226,15 +237,15 @@ model Notification {
 }
 
 model AuditLog {
-  id          String   @id @default(uuid())
-  userId      String?  @map("user_id")
-  action      String
-  resource    String
-  resourceId  String?  @map("resource_id")
-  details     Json?
-  ipAddress   String?  @map("ip_address")
-  userAgent   String?  @map("user_agent")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  resource   String
+  resourceId String?  @map("resource_id")
+  details    Json?
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
