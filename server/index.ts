@@ -44,11 +44,11 @@ const server = Fastify({
 
 async function main() {
   try {
-    // Register plugins
+    // Register plugins with very permissive CORS for tRPC auth
     await server.register(cors, {
-      origin: process.env.NODE_ENV === 'production' ? true : (process.env.APP_URL || 'http://localhost:6000'),
+      origin: true, // Allow all origins
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
       allowedHeaders: [
         'Content-Type', 
         'Authorization', 
@@ -56,7 +56,9 @@ async function main() {
         'x-requested-with',
         'accept',
         'origin',
-        'cache-control'
+        'cache-control',
+        'user-agent',
+        'referer'
       ],
       exposedHeaders: ['set-cookie'],
       preflightContinue: false,
