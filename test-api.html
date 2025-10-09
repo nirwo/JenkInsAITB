@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JenKinds API Test</title>
+</head>
+<body>
+    <h1>JenKinds API Connection Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        // Test the API URL that the frontend is using
+        const API_URL = 'http://localhost:6001';
+        
+        results.innerHTML = '<p>Testing API connection...</p>';
+        
+        // Test health endpoint
+        fetch(`${API_URL}/health`)
+            .then(response => response.json())
+            .then(data => {
+                results.innerHTML += `<p>✅ Health endpoint works: ${JSON.stringify(data)}</p>`;
+            })
+            .catch(error => {
+                results.innerHTML += `<p>❌ Health endpoint failed: ${error.message}</p>`;
+            });
+            
+        // Test tRPC endpoint
+        fetch(`${API_URL}/trpc`)
+            .then(response => {
+                if (response.status === 404) {
+                    results.innerHTML += `<p>✅ tRPC endpoint responding (404 is expected for GET)</p>`;
+                } else {
+                    results.innerHTML += `<p>✅ tRPC endpoint responding: ${response.status}</p>`;
+                }
+            })
+            .catch(error => {
+                results.innerHTML += `<p>❌ tRPC endpoint failed: ${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>

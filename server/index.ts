@@ -46,7 +46,7 @@ async function main() {
   try {
     // Register plugins
     await server.register(cors, {
-      origin: process.env.APP_URL || 'http://localhost:3000',
+      origin: process.env.NODE_ENV === 'production' ? true : (process.env.APP_URL || 'http://localhost:6000'),
       credentials: true,
     });
 

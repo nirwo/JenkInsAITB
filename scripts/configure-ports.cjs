@@ -55,6 +55,7 @@ const FILES_TO_UPDATE = [
       { pattern: /API_PORT=\d+/, replacement: `API_PORT=${PORT_CONFIG.API_PORT}` },
       { pattern: /APP_URL=http:\/\/localhost:\d+/, replacement: `APP_URL=http://localhost:${PORT_CONFIG.CLIENT_PORT}` },
       { pattern: /API_URL=http:\/\/localhost:\d+/, replacement: `API_URL=http://localhost:${PORT_CONFIG.API_PORT}` },
+      { pattern: /VITE_API_URL=http:\/\/localhost:\d+/, replacement: `VITE_API_URL=http://localhost:${PORT_CONFIG.API_PORT}` },
     ],
   },
   {

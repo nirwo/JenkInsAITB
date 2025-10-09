@@ -16,6 +16,7 @@
     "start:prod": "NODE_ENV=production node dist/server/index.js",
     "start:open": "tsx scripts/start-production.ts",
     "debug:remote": "node scripts/debug-remote.js",
+    "configure:remote": "node scripts/configure-remote.js",
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "tsc && vite build",
     "build:server": "tsc -p tsconfig.server.json && node scripts/post-build-server.cjs",
