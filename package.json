@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "concurrently \"pnpm dev:client\" \"pnpm dev:server\"",
+    "dev:remote": "tsx scripts/start-dev-remote.ts",
     "dev:client": "vite",
     "dev:server": "tsx watch server/index.ts",
     "start": "NODE_ENV=production node dist/server/index.js",
