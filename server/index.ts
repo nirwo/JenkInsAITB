@@ -92,7 +92,7 @@ async function main() {
     });
 
     // CORS debugging endpoint
-    server.get('/cors-test', async (request, reply) => {
+    server.get('/cors-test', async (request) => {
       const origin = request.headers.origin;
       const method = request.method;
       const userAgent = request.headers['user-agent'];
