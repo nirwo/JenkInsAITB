@@ -15,7 +15,7 @@
     "start": "node dist/server/index.js",
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "tsc && vite build",
-    "build:server": "tsc -p tsconfig.server.json && tsx scripts/post-build-server.ts",
+    "build:server": "tsc -p tsconfig.server.json && node scripts/post-build-server.cjs",
     "preview": "vite preview",
     "setup": "tsx scripts/setup.ts",
     "setup:db": "pnpm db:generate && pnpm db:push",
