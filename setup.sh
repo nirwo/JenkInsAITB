@@ -179,6 +179,7 @@ setup_environment() {
     session_secret=$(openssl rand -base64 32 2>/dev/null || head -c 32 /dev/urandom | base64)
     
     # Update .env file
+    sed -i.bak "s|DATABASE_URL=.*|DATABASE_URL=\"file:./prisma/dev.db\"|" .env
     sed -i.bak "s|JENKINS_URL=.*|JENKINS_URL=$jenkins_url|" .env
     sed -i.bak "s|JENKINS_USER=.*|JENKINS_USER=$jenkins_user|" .env
     sed -i.bak "s|JENKINS_API_TOKEN=.*|JENKINS_API_TOKEN=$jenkins_token|" .env

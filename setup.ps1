@@ -161,6 +161,7 @@ function Initialize-Environment {
     
     # Update .env file
     $envContent = Get-Content ".env"
+    $envContent = $envContent -replace 'DATABASE_URL=.*', 'DATABASE_URL="file:./prisma/dev.db"'
     $envContent = $envContent -replace 'JENKINS_URL=.*', "JENKINS_URL=$jenkinsUrl"
     $envContent = $envContent -replace 'JENKINS_USER=.*', "JENKINS_USER=$jenkinsUser"
     $envContent = $envContent -replace 'JENKINS_API_TOKEN=.*', "JENKINS_API_TOKEN=$jenkinsToken"

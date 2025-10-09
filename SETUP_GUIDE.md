@@ -105,13 +105,16 @@ nano .env  # or vim, code, etc.
 **Required environment variables:**
 
 ```bash
+# Database (SQLite - default, zero configuration needed)
+DATABASE_URL="file:./prisma/dev.db"
+
+# Note: For PostgreSQL, see docs/DATABASE_CONFIGURATION.md
+# DATABASE_URL="postgresql://user:password@localhost:5432/jenkinds"
+
 # Jenkins Configuration
 JENKINS_URL=http://localhost:8080
 JENKINS_USER=your-jenkins-username
 JENKINS_API_TOKEN=your-jenkins-api-token
-
-# Database (SQLite - already configured)
-DATABASE_URL="file:./prisma/dev.db"
 
 # Security (generate using: openssl rand -base64 32)
 JWT_SECRET=your-jwt-secret-here
