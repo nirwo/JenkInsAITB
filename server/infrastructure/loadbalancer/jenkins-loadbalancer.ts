@@ -27,7 +27,7 @@ export class JenkinsLoadBalancer {
       return b.priority - a.priority;
     });
 
-    return sorted[0];
+    return sorted[0] || null;
   }
 
   /**
@@ -237,7 +237,7 @@ export class JenkinsLoadBalancer {
     // Update cache
     await redis.set(cacheKey, currentIndex.toString(), 'EX', 3600);
 
-    return instances[currentIndex];
+    return instances[currentIndex] || null;
   }
 
   /**
@@ -267,7 +267,7 @@ export class JenkinsLoadBalancer {
       }
     }
 
-    return instances[0];
+    return instances[0] || null;
   }
 
   /**

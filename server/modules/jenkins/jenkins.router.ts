@@ -213,8 +213,8 @@ export const jenkinsRouter = router({
       const instance = await ctx.prisma.jenkinsInstance.findUnique({
         where: { id: input.instanceId },
         include: {
-          jobs: { select: { id: true, status: true } },
-          executors: { select: { id: true, isIdle: true } },
+          jobs: { select: { id: true, lastBuildStatus: true } },
+          executors: { select: { id: true, idle: true } },
         },
       });
 
@@ -226,9 +226,9 @@ export const jenkinsRouter = router({
       }
 
       const totalJobs = instance.jobs.length;
-      const activeJobs = instance.jobs.filter((j: any) => j.status === 'RUNNING').length;
+      const activeJobs = instance.jobs.filter((j) => j.lastBuildStatus === 'RUNNING' || j.lastBuildStatus === 'IN_PROGRESS').length;
       const totalExecutors = instance.executors.length;
-      const idleExecutors = instance.executors.filter((e: any) => e.isIdle).length;
+      const idleExecutors = instance.executors.filter((e) => e.idle).length;
 
       return {
         instanceId: instance.id,

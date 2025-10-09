@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   postgres:
@@ -10,11 +10,11 @@ services:
       POSTGRES_PASSWORD: jenkinds
       POSTGRES_DB: jenkinds
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U jenkinds']
+      test: ["CMD-SHELL", "pg_isready -U jenkinds"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,11 +25,11 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
-      - '6379:6379'
+      - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -39,20 +39,20 @@ services:
     container_name: jenkinds-prometheus
     restart: unless-stopped
     ports:
-      - '9090:9090'
+      - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
 
   grafana:
     image: grafana/grafana:latest
     container_name: jenkinds-grafana
     restart: unless-stopped
     ports:
-      - '3002:3000'
+      - "3002:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_INSTALL_PLUGINS: redis-datasource

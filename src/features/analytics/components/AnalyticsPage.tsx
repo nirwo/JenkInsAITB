@@ -15,7 +15,6 @@ export function AnalyticsPage() {
   const jobs = jobsData?.jobs || [];
 
   // Calculate statistics
-  const totalBuilds = jobs.reduce((sum, job) => sum + (job.lastBuildNumber || 0), 0);
   const successfulBuilds = jobs.filter((job) => job.lastBuildStatus === 'SUCCESS').length;
   const failedBuilds = jobs.filter((job) => job.lastBuildStatus === 'FAILURE').length;
   const runningBuilds = jobs.filter((job) => job.lastBuildStatus === 'RUNNING').length;

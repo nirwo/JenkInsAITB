@@ -35,7 +35,7 @@ export class JenkinsClient {
         throw new Error(`Jenkins API error: ${response.status} ${response.statusText}`);
       }
 
-      return response.json();
+      return response.json() as Promise<T>;
     } catch (error) {
       logger.error(`Jenkins API request failed for ${url}:`, error);
       throw error;
