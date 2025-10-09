@@ -48,8 +48,19 @@ async function main() {
     await server.register(cors, {
       origin: process.env.NODE_ENV === 'production' ? true : (process.env.APP_URL || 'http://localhost:6000'),
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-trpc-source'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+      allowedHeaders: [
+        'Content-Type', 
+        'Authorization', 
+        'x-trpc-source',
+        'x-requested-with',
+        'accept',
+        'origin',
+        'cache-control'
+      ],
+      exposedHeaders: ['set-cookie'],
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
     });
 
     await server.register(helmet, {
@@ -74,8 +85,27 @@ async function main() {
         createContext,
         onError(opts: any) {
           logger.error(`Error in tRPC handler on path '${opts.path}':`, opts.error);
+          logger.error(`Request origin: ${opts.req.headers.origin}`);
+          logger.error(`Request method: ${opts.req.method}`);
         },
       },
+    });
+
+    // CORS debugging endpoint
+    server.get('/cors-test', async (request, reply) => {
+      const origin = request.headers.origin;
+      const method = request.method;
+      const userAgent = request.headers['user-agent'];
+      
+      return {
+        message: 'CORS test endpoint',
+        origin: origin,
+        method: method,
+        userAgent: userAgent,
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV,
+        corsEnabled: true
+      };
     });
 
     // Serve static files in production
