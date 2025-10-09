@@ -282,6 +282,32 @@ pnpm db:seed
 pnpm dev
 ```
 
+### 🔌 Port Configuration
+
+JenKinds runs on port 6000 (frontend) and 6001 (backend) by default. If you have port conflicts, use the automated port configuration tool:
+
+```bash
+# Use 8000 range
+pnpm ports 8000
+
+# Use original 3000 range
+pnpm ports 3000
+
+# Use any base port (1024-65533)
+pnpm ports 7500
+
+# After changing ports, rebuild and restart
+pnpm build
+pnpm dev
+```
+
+The script automatically updates all configuration files and calculates derived ports:
+- **Frontend**: Base port (e.g., 8000)
+- **Backend API**: Base + 1 (e.g., 8001)
+- **Grafana**: Base + 2 (e.g., 8002)
+
+See [PORT_CONFIG.md](PORT_CONFIG.md) for detailed configuration guide.
+
 ### Environment Configuration
 
 Create a `.env` file:
@@ -289,8 +315,8 @@ Create a `.env` file:
 ```bash
 # Application
 NODE_ENV=development
-PORT=3000
-API_PORT=3001
+PORT=6000              # Frontend port (use 'pnpm ports' to change)
+API_PORT=6001          # Backend API port
 
 # Database
 DATABASE_URL="postgresql://user:password@localhost:5432/jenkinds"
@@ -323,9 +349,9 @@ ENABLE_METRICS=true
 docker-compose up --build
 
 # Access the application
-# Frontend: http://localhost:3000
-# API: http://localhost:3001
-# Grafana: http://localhost:3002
+# Frontend: http://localhost:6000
+# API: http://localhost:6001
+# Grafana: http://localhost:6002
 ```
 
 ---

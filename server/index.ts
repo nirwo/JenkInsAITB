@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config(); // Load .env file at startup
+
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
