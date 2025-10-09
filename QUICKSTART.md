@@ -1,4 +1,6 @@
-# JenKinds - Quick Start Guide
+# 🚀 JenKinds One-Command Setup
+
+Get JenKinds running on your server in minutes with a single command!
 
 ## 🚀 Get Started in 5 Minutes
 
