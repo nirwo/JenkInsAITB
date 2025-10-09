@@ -1,35 +1,33 @@
-# CORS Policy Fully Disabled
+# CORS Policy COMPLETELY DISABLED
 
 ## Changes Made
 
 ### Server Configuration (`server/index.ts`)
 
-**Approach: Dual-layer CORS bypass**
+**Approach: Pure manual CORS headers - NO plugins**
 
-1. **Manual CORS Headers (Primary Method)**
-   - Added `onRequest` hook that runs before any other middleware
-   - Sets CORS headers manually on every request:
-     - `Access-Control-Allow-Origin`: Mirrors the request origin (allows ALL origins)
+1. **CORS Plugin REMOVED**
+   - `@fastify/cors` plugin completely removed
+   - No CORS plugin interference
+
+2. **Helmet Plugin REMOVED**
+   - `@fastify/helmet` plugin completely removed
+   - No security header interference
+
+3. **Manual CORS Headers (Only Method)**
+   - Added `onRequest` hook that runs FIRST before any middleware
+   - Sets wildcard CORS headers on EVERY request:
+     - `Access-Control-Allow-Origin`: `*` or mirrors origin (allows ALL origins)
      - `Access-Control-Allow-Credentials`: `true`
-     - `Access-Control-Allow-Methods`: All HTTP methods
-     - `Access-Control-Allow-Headers`: `*` (wildcard - all headers)
-     - `Access-Control-Expose-Headers`: `*` (wildcard - all headers)
-     - `Access-Control-Max-Age`: 86400 seconds (24 hours)
-   - Automatically handles OPTIONS preflight requests with 200 status
+     - `Access-Control-Allow-Methods`: `*` (ALL methods)
+     - `Access-Control-Allow-Headers`: `*` (ALL headers)
+     - `Access-Control-Expose-Headers`: `*` (ALL headers)
+     - `Access-Control-Max-Age`: `86400` seconds (24 hours)
+   - Immediately returns 200 for OPTIONS preflight requests
 
-2. **CORS Plugin (Fallback)**
-   - Still registered with maximum permissiveness:
-     - `origin: true` (allow all origins)
-     - `credentials: true`
-     - `allowedHeaders: '*'`
-     - `exposedHeaders: '*'`
-
-3. **Helmet Security Disabled**
-   - Disabled all cross-origin policies:
-     - `crossOriginEmbedderPolicy: false`
-     - `crossOriginOpenerPolicy: false`
-     - `crossOriginResourcePolicy: false`
-     - `originAgentCluster: false`
+4. **Backup onSend Hook**
+   - Additional `onSend` hook ensures CORS headers on all responses
+   - Guarantees headers even if missed by onRequest
 
 ### Frontend Configuration (`src/core/api/trpc.ts`)
 
@@ -38,6 +36,11 @@
 
 ## Testing
 
+✅ **Run Comprehensive Tests:**
+```bash
+./scripts/test-cors-complete.sh
+```
+
 ✅ **Verified Working:**
 ```bash
 # Test from remote origin
@@ -45,12 +48,24 @@ curl -X OPTIONS -H "Origin: http://10.100.102.29:6001" \
   -H "Access-Control-Request-Method: POST" \
   http://localhost:6001/trpc/auth.login
 
-# Result: All CORS headers present
+# Result: All CORS headers present with wildcards
 access-control-allow-origin: http://10.100.102.29:6001
 access-control-allow-credentials: true
-access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH
+access-control-allow-methods: *
 access-control-allow-headers: *
 access-control-expose-headers: *
+```
+
+✅ **Batch Requests Working:**
+```bash
+# Test tRPC batch endpoint
+curl -X OPTIONS -H "Origin: http://10.100.102.29:6001" \
+  -H "Access-Control-Request-Method: POST" \
+  http://localhost:6001/trpc/auth.login?batch=1
+
+# Result: Batch URLs also work
+access-control-allow-origin: http://10.100.102.29:6001
+access-control-allow-methods: *
 ```
 
 ✅ **Any Origin Accepted:**

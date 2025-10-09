@@ -2,8 +2,9 @@ import { config } from 'dotenv';
 config(); // Load .env file at startup
 
 import Fastify from 'fastify';
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
+// CORS and Helmet plugins completely removed - using manual headers only
+// import cors from '@fastify/cors';
+// import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
 import staticFiles from '@fastify/static';
@@ -44,56 +45,50 @@ const server = Fastify({
 
 async function main() {
   try {
-    // Add raw CORS headers manually to bypass ALL restrictions
+    // ===== COMPLETELY DISABLE CORS =====
+    // Set the most permissive CORS headers possible on EVERY request
     server.addHook('onRequest', async (request, reply) => {
+      // Accept ANY origin
       const origin = request.headers.origin || '*';
       
-      // Log all requests for debugging
-      logger.info(`${request.method} ${request.url} from origin: ${origin}`);
-      
+      // Set all CORS headers to maximum permissiveness
       reply.header('Access-Control-Allow-Origin', origin);
       reply.header('Access-Control-Allow-Credentials', 'true');
-      reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
+      reply.header('Access-Control-Allow-Methods', '*');
       reply.header('Access-Control-Allow-Headers', '*');
       reply.header('Access-Control-Expose-Headers', '*');
       reply.header('Access-Control-Max-Age', '86400');
-      reply.header('Vary', 'Origin');
       
-      // Handle preflight requests immediately
+      // Log requests for debugging
+      if (request.url.includes('trpc') || request.url.includes('auth')) {
+        logger.info(`${request.method} ${request.url} from: ${origin}`);
+      }
+      
+      // Immediately handle OPTIONS preflight
       if (request.method === 'OPTIONS') {
-        return reply.status(200).send();
+        reply.status(200).send();
+        return reply;
       }
     });
     
-    // Add onSend hook to ensure CORS headers on ALL responses
+    // Add onSend hook to ensure CORS headers on ALL responses (last resort)
     server.addHook('onSend', async (request, reply, payload) => {
-      const origin = request.headers.origin;
-      if (origin && !reply.hasHeader('Access-Control-Allow-Origin')) {
+      const origin = request.headers.origin || '*';
+      if (!reply.hasHeader('Access-Control-Allow-Origin')) {
         reply.header('Access-Control-Allow-Origin', origin);
         reply.header('Access-Control-Allow-Credentials', 'true');
+        reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
+        reply.header('Access-Control-Allow-Headers', '*');
+        reply.header('Access-Control-Expose-Headers', '*');
       }
       return payload;
     });
 
-    // Still register CORS plugin but with maximum permissiveness as fallback
-    await server.register(cors, {
-      origin: true,
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
-      allowedHeaders: '*',
-      exposedHeaders: '*',
-      preflightContinue: false,
-      optionsSuccessStatus: 200,
-    });
+    // CORS plugin completely removed - using manual headers only
+    // This prevents ANY CORS restrictions
 
-    // Disable helmet completely to avoid any CORS interference
-    await server.register(helmet, {
-      contentSecurityPolicy: false,
-      crossOriginEmbedderPolicy: false,
-      crossOriginOpenerPolicy: false,
-      crossOriginResourcePolicy: false,
-      originAgentCluster: false,
-    });
+    // Helmet also completely removed to avoid any interference
+    // await server.register(helmet, { ... });
 
     await server.register(rateLimit, {
       max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
