@@ -251,41 +251,28 @@ create_admin_user() {
         return 1
     fi
     
-    # Create admin user using Node script
+    # Create admin user using our TypeScript script
     print_info "Creating admin user..."
     
-    cat > /tmp/create-admin.js << EOF
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcrypt');
-
-const prisma = new PrismaClient();
-
-async function main() {
-  const hashedPassword = await bcrypt.hash('$admin_password', 10);
-  
-  const user = await prisma.user.upsert({
-    where: { username: '$admin_username' },
-    update: {},
-    create: {
-      username: '$admin_username',
-      email: '$admin_email',
-      password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'ADMIN',
-    },
-  });
-  
-  console.log('Admin user created:', user.username);
-}
-
-main()
-  .catch(console.error)
-  .finally(() => prisma.\$disconnect());
+    # Create a temporary file with credentials
+    cat > /tmp/admin-creds.txt << EOF
+$admin_username
+$admin_email
+Admin
+User
+$admin_password
+$admin_password
 EOF
     
-    node /tmp/create-admin.js
-    rm -f /tmp/create-admin.js
+    # Run the interactive script with input from file
+    pnpm tsx scripts/create-admin-interactive.ts < /tmp/admin-creds.txt || {
+        print_error "Failed to create admin user"
+        print_info "You can create it later with: pnpm setup:admin"
+        rm -f /tmp/admin-creds.txt
+        return 0
+    }
+    
+    rm -f /tmp/admin-creds.txt
     
     print_success "Admin user created successfully!"
     echo ""

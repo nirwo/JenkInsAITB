@@ -243,42 +243,28 @@ function New-AdminUser {
         return
     }
     
-    # Create admin user using Node script
+    # Create admin user using our TypeScript script
     Write-Info "Creating admin user..."
     
-    $createAdminScript = @"
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcrypt');
-
-const prisma = new PrismaClient();
-
-async function main() {
-  const hashedPassword = await bcrypt.hash('$pwd1', 10);
-  
-  const user = await prisma.user.upsert({
-    where: { username: '$adminUsername' },
-    update: {},
-    create: {
-      username: '$adminUsername',
-      email: '$adminEmail',
-      password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'ADMIN',
-    },
-  });
-  
-  console.log('Admin user created:', user.username);
-}
-
-main()
-  .catch(console.error)
-  .finally(() => prisma.`$disconnect());
-"@
+    # Create a temporary file with credentials
+    @"
+$adminUsername
+$adminEmail
+Admin
+User
+$pwd1
+$pwd1
+"@ | Out-File -FilePath ".\temp-admin-creds.txt" -Encoding UTF8
     
-    $createAdminScript | Out-File -FilePath ".\temp-create-admin.js" -Encoding UTF8
-    node ".\temp-create-admin.js"
-    Remove-Item ".\temp-create-admin.js"
+    # Run the interactive script with input from file
+    Get-Content ".\temp-admin-creds.txt" | pnpm tsx scripts/create-admin-interactive.ts
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning-Custom "Failed to create admin user"
+        Write-Info "You can create it later with: pnpm setup:admin"
+    }
+    
+    Remove-Item ".\temp-admin-creds.txt" -ErrorAction SilentlyContinue
     
     # Clear sensitive data
     [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR1)
