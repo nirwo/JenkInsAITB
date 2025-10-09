@@ -54,9 +54,9 @@ async function main() {
       // Set all CORS headers to maximum permissiveness
       reply.header('Access-Control-Allow-Origin', origin);
       reply.header('Access-Control-Allow-Credentials', 'true');
-      reply.header('Access-Control-Allow-Methods', '*');
-      reply.header('Access-Control-Allow-Headers', '*');
-      reply.header('Access-Control-Expose-Headers', '*');
+      reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD');
+      reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+      reply.header('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
       reply.header('Access-Control-Max-Age', '86400');
       
       // Log requests for debugging
@@ -64,9 +64,11 @@ async function main() {
         logger.info(`${request.method} ${request.url} from: ${origin}`);
       }
       
-      // Immediately handle OPTIONS preflight
+      // Immediately handle OPTIONS preflight with proper Content-Type
       if (request.method === 'OPTIONS') {
-        reply.status(200).send();
+        reply.header('Content-Type', 'text/plain');
+        reply.header('Content-Length', '0');
+        reply.status(204).send();
         return reply;
       }
     });

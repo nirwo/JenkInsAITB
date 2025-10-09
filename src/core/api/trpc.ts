@@ -3,7 +3,7 @@ import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
 import superjson from 'superjson';
 import type { AppRouter } from '../../../server/router';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:6001';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9011';
 
 export const trpc = createTRPCReact<AppRouter>();
 

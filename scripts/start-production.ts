@@ -6,7 +6,7 @@ import { config } from 'dotenv';
 // Load environment variables
 config();
 
-const PORT = process.env.API_PORT || '6001';
+const PORT = process.env.API_PORT || '9011';
 const APP_URL = `http://localhost:${PORT}`;
 
 console.log('🚀 Starting JenKinds in Production Mode');
