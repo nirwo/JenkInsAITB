@@ -44,20 +44,35 @@ const server = Fastify({
 
 async function main() {
   try {
-    // Add raw CORS headers manually to bypass plugin restrictions
+    // Add raw CORS headers manually to bypass ALL restrictions
     server.addHook('onRequest', async (request, reply) => {
       const origin = request.headers.origin || '*';
+      
+      // Log all requests for debugging
+      logger.info(`${request.method} ${request.url} from origin: ${origin}`);
+      
       reply.header('Access-Control-Allow-Origin', origin);
       reply.header('Access-Control-Allow-Credentials', 'true');
       reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
       reply.header('Access-Control-Allow-Headers', '*');
       reply.header('Access-Control-Expose-Headers', '*');
       reply.header('Access-Control-Max-Age', '86400');
+      reply.header('Vary', 'Origin');
       
-      // Handle preflight requests
+      // Handle preflight requests immediately
       if (request.method === 'OPTIONS') {
-        reply.status(200).send();
+        return reply.status(200).send();
       }
+    });
+    
+    // Add onSend hook to ensure CORS headers on ALL responses
+    server.addHook('onSend', async (request, reply, payload) => {
+      const origin = request.headers.origin;
+      if (origin && !reply.hasHeader('Access-Control-Allow-Origin')) {
+        reply.header('Access-Control-Allow-Origin', origin);
+        reply.header('Access-Control-Allow-Credentials', 'true');
+      }
+      return payload;
     });
 
     // Still register CORS plugin but with maximum permissiveness as fallback
