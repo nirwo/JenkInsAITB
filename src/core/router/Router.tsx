@@ -7,6 +7,7 @@ import { ExecutorsPage } from '@/features/executors/components/ExecutorsPage';
 import { AgentsPage } from '@/features/agents/components/AgentsPage';
 import { LogAnalysisPage } from '@/features/logs/components/LogAnalysisPage';
 import { LogViewerPage } from '@/features/logs/components/LogViewerPage';
+import { SmartLogViewer } from '@/features/logs/components/SmartLogViewer';
 import { AnalyticsPage } from '@/features/analytics/components/AnalyticsPage';
 import { SettingsPage } from '@/features/settings/components/SettingsPage';
 import { LoginPage } from '@/features/auth/components/LoginPage';
@@ -35,6 +36,7 @@ export function Router() {
           <Route path="agents" element={<AgentsPage />} />
           <Route path="logs/:buildId" element={<LogAnalysisPage />} />
           <Route path="logs/:buildId/raw" element={<LogViewerPage />} />
+          <Route path="logs/:buildId/smart" element={<SmartLogViewer />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>

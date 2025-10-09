@@ -119,9 +119,9 @@ export default defineConfig({
     'btn-ghost': 'btn bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700',
     
     // Cards
-    'card': 'rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6 shadow-xl backdrop-blur-sm',
+    'card': 'rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6 shadow-xl backdrop-blur-sm text-slate-100',
     'card-interactive': 'card transition-all duration-300 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-500/10 cursor-pointer',
-    'card-glass': 'rounded-xl border border-slate-700/50 bg-slate-800/30 backdrop-blur-xl p-6 shadow-xl',
+    'card-glass': 'rounded-xl border border-slate-700/50 bg-slate-800/30 backdrop-blur-xl p-6 shadow-xl text-slate-100',
     
     // Input
     'input': 'block w-full rounded-lg border-slate-600 bg-slate-800 text-slate-100 shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 placeholder:text-slate-500 text-sm font-mono transition-all',
