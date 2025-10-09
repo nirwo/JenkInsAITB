@@ -24,7 +24,7 @@
   - 🎨 Better developer experience
   - 🔧 More flexible and modern
   - 📦 Smaller bundle size
-  - 🔍 Built-in inspector at `http://localhost:3000/__unocss/`
+  - 🔍 Built-in inspector at `http://localhost:6000/__unocss/`
 
 ### 3. Multi-Jenkins Architecture ✅
 Implemented comprehensive multi-Jenkins master support:
@@ -86,7 +86,7 @@ Added 11 new fields to `JenkinsInstance` model:
 ## 🚀 Running Services
 
 ### Frontend (Vite + React)
-- **URL**: http://localhost:3000
+- **URL**: http://localhost:6000
 - **Status**: ✅ Running
 - **Features**:
   - UnoCSS v66.5.2
@@ -94,11 +94,11 @@ Added 11 new fields to `JenkinsInstance` model:
   - UnoCSS Inspector at `/__unocss/`
 
 ### Backend (Fastify + tRPC)
-- **URL**: http://0.0.0.0:3001
+- **URL**: http://0.0.0.0:6001
 - **Status**: ✅ Running
 - **Endpoints**:
-  - API: http://0.0.0.0:3001/trpc
-  - Metrics: http://0.0.0.0:3001/metrics
+  - API: http://0.0.0.0:6001/trpc
+  - Metrics: http://0.0.0.0:6001/metrics
 - **Connections**:
   - Redis: ✅ Connected
   - PostgreSQL: ✅ Healthy
@@ -229,11 +229,11 @@ FastifyWarning: The router options for maxParamLength property access is depreca
 
 ## 🔗 Useful Links
 
-- Frontend: http://localhost:3000
-- Backend: http://0.0.0.0:3001
-- Metrics: http://0.0.0.0:3001/metrics
-- tRPC API: http://0.0.0.0:3001/trpc
-- UnoCSS Inspector: http://localhost:3000/__unocss/
+- Frontend: http://localhost:6000
+- Backend: http://0.0.0.0:6001
+- Metrics: http://0.0.0.0:6001/metrics
+- tRPC API: http://0.0.0.0:6001/trpc
+- UnoCSS Inspector: http://localhost:6000/__unocss/
 
 ---
 

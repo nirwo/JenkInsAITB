@@ -55,7 +55,7 @@ Navigate to: `/logs/:buildId`
 
 Example:
 ```
-http://localhost:3000/logs/123e4567-e89b-12d3-a456-426614174000
+http://localhost:6000/logs/123e4567-e89b-12d3-a456-426614174000
 ```
 
 #### Option 2: Via Jobs Page (Once Job Detail Page is implemented)

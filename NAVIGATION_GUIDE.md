@@ -12,7 +12,7 @@ The "Logs" link has been removed from the main sidebar navigation because AI Log
 
 1. **Go to Jobs Page**
    - Click "Jobs" in the sidebar
-   - Or navigate to: http://localhost:3000/jobs
+   - Or navigate to: http://localhost:6000/jobs
 
 2. **Select a Job**
    - Click on any job from the list
@@ -31,12 +31,12 @@ The "Logs" link has been removed from the main sidebar navigation because AI Log
 
 Navigate directly to:
 ```
-http://localhost:3000/logs/<build-uuid-here>
+http://localhost:6000/logs/<build-uuid-here>
 ```
 
 Example:
 ```
-http://localhost:3000/logs/123e4567-e89b-12d3-a456-426614174000
+http://localhost:6000/logs/123e4567-e89b-12d3-a456-426614174000
 ```
 
 ---

@@ -268,8 +268,8 @@ SESSION_SECRET=<generated-secret-2>
 
 ```bash
 # Application should start on:
-# - Frontend: http://localhost:3000
-# - Backend API: http://localhost:3001
+# - Frontend: http://localhost:6000
+# - Backend API: http://localhost:6001
 ```
 
 ### 2. Verify Database
@@ -285,7 +285,7 @@ pnpm db:studio
 
 ### 3. Test Login
 
-1. Open browser: http://localhost:3000
+1. Open browser: http://localhost:6000
 2. Login with admin credentials
 3. Should redirect to Dashboard
 
@@ -343,10 +343,10 @@ BACKEND_PORT=3003      # Backend
 
 # Or kill existing process
 # macOS/Linux
-lsof -ti:3000 | xargs kill -9
+lsof -ti:6000 | xargs kill -9
 
 # Windows
-netstat -ano | findstr :3000
+netstat -ano | findstr :6000
 taskkill /PID <PID> /F
 ```
 
@@ -437,7 +437,7 @@ docker build -t jenkinsdtb:latest .
 docker-compose up -d
 
 # Access application
-open http://localhost:3000
+open http://localhost:6000
 ```
 
 ### Production Deployment

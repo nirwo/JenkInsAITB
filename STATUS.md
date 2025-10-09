@@ -83,10 +83,10 @@ pnpm dev
 ```
 
 ### Access Points:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3001
-- **Health Check**: http://localhost:3001/health
-- **Metrics**: http://localhost:3001/metrics
+- **Frontend**: http://localhost:6000
+- **Backend API**: http://localhost:6001
+- **Health Check**: http://localhost:6001/health
+- **Metrics**: http://localhost:6001/metrics
 - **Prisma Studio**: `pnpm db:studio`
 
 ## 📋 Next Development Tasks
@@ -348,7 +348,7 @@ You have a **production-ready foundation** for enterprise Jenkins monitoring!
 pnpm dev
 ```
 
-**Then open:** http://localhost:3000
+**Then open:** http://localhost:6000
 
 ---
 

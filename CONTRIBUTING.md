@@ -69,9 +69,9 @@ pnpm dev  # Starts both frontend and backend
 ```
 
 The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
-- Grafana: http://localhost:3002
+- Frontend: http://localhost:6000
+- Backend API: http://localhost:6001
+- Grafana: http://localhost:6002
 
 ## Development Workflow
 

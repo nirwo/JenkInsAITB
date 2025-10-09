@@ -20,7 +20,7 @@
 
 ## 🚀 How to Login
 
-1. Open your browser and go to: **http://localhost:3000**
+1. Open your browser and go to: **http://localhost:6000**
 2. Click on "Login" or navigate to the login page
 3. Enter the email and password above
 4. You will be logged in with full admin privileges

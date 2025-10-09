@@ -282,8 +282,8 @@ Input: Raw Console Logs (Plain Text)
 Development:
 ┌──────────────────────────────────────────────────────────────────────────┐
 │  Local Machine                                                            │
-│  ├─ Frontend: http://localhost:3000                                      │
-│  ├─ Backend: http://localhost:3001                                       │
+│  ├─ Frontend: http://localhost:6000                                      │
+│  ├─ Backend: http://localhost:6001                                       │
 │  ├─ Database: SQLite file                                                │
 │  └─ Jenkins: http://localhost:8058 (local instance)                      │
 └──────────────────────────────────────────────────────────────────────────┘

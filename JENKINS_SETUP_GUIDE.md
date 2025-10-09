@@ -98,7 +98,7 @@ You can also manually trigger a sync:
 trpc.jenkins.syncJobs.mutate()
 
 // Or via API:
-POST http://localhost:3001/trpc/jenkins.syncJobs
+POST http://localhost:6001/trpc/jenkins.syncJobs
 ```
 
 ## 🔍 Verify It's Working

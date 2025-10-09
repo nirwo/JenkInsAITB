@@ -406,7 +406,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 docker build -t jenkinsdtb:latest .
 
 # Run with environment file
-docker run -p 3000:3000 --env-file .env jenkinsdtb:latest
+docker run -p 3000:6000 --env-file .env jenkinsdtb:latest
 
 # Or use Docker Compose
 docker-compose up -d

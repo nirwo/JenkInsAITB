@@ -165,9 +165,9 @@ See `docs/AI_LOG_ANALYSIS.md` for:
    ```
 
 2. **Access the application**:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-   - tRPC endpoint: http://localhost:3001/trpc
+   - Frontend: http://localhost:6000
+   - Backend API: http://localhost:6001
+   - tRPC endpoint: http://localhost:6001/trpc
 
 3. **Login**:
    - Use admin credentials to access Settings

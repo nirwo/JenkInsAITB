@@ -326,7 +326,7 @@ server {
 
     # API proxy
     location /api {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:6001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -336,7 +336,7 @@ server {
 
     # WebSocket
     location /ws {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:6001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -350,10 +350,10 @@ server {
 
 ```bash
 # HTTP health check
-curl http://localhost:3001/health
+curl http://localhost:6001/health
 
 # tRPC endpoint
-curl http://localhost:3001/trpc
+curl http://localhost:6001/trpc
 ```
 
 ### Database Health
@@ -374,8 +374,8 @@ redis-cli ping
 
 ## Monitoring
 
-- **Metrics**: http://localhost:3001/metrics (Prometheus format)
-- **Grafana**: http://localhost:3002 (if using docker-compose)
+- **Metrics**: http://localhost:6001/metrics (Prometheus format)
+- **Grafana**: http://localhost:6002 (if using docker-compose)
 - **Logs**: `logs/combined.log` and `logs/error.log`
 
 ## Backup

@@ -212,7 +212,7 @@ Each agent card displays:
 
 ### Accessing the Agents Page
 
-1. **Navigate to:** `http://localhost:3000/agents`
+1. **Navigate to:** `http://localhost:6000/agents`
 2. **Or click:** "Agents" in the sidebar navigation
 
 ### Agent Status Meanings
@@ -286,7 +286,7 @@ export const agentRouter = router({
 
 ```typescript
 // Add WebSocket connection for live agent status
-const ws = new WebSocket('ws://localhost:3001/agents');
+const ws = new WebSocket('ws://localhost:6001/agents');
 ws.onmessage = (event) => {
   const agentUpdate = JSON.parse(event.data);
   updateAgentStatus(agentUpdate);

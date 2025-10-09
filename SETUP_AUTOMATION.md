@@ -227,7 +227,7 @@ pnpm db:reset           # Reset database (WARNING: deletes data)
 │                  ✅ Setup Complete!                         │
 │                                                             │
 │  Next: pnpm dev                                             │
-│  Access: http://localhost:3000                              │
+│  Access: http://localhost:6000                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -279,7 +279,7 @@ pnpm setup:admin
 # Start
 pnpm dev
 
-# Access: http://localhost:3000
+# Access: http://localhost:6000
 # Login: demo / demo123
 ```
 
@@ -671,7 +671,7 @@ After running setup, you should have:
 - ✅ Admin user in database
 - ✅ Jenkins connection tested (if Jenkins running)
 - ✅ Application starts with `pnpm dev`
-- ✅ Can login at http://localhost:3000
+- ✅ Can login at http://localhost:6000
 - ✅ Dashboard loads without errors
 
 **Verify with:**

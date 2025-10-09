@@ -12,7 +12,7 @@ import { JenkinsSyncService } from './modules/jenkins/jenkins-sync.service';
 import { prisma } from './infrastructure/database/prisma';
 import Redis from 'ioredis';
 
-const PORT = Number(process.env.API_PORT) || 3001;
+const PORT = Number(process.env.API_PORT) || 6001;
 const HOST = '0.0.0.0';
 
 // Initialize Redis

@@ -370,7 +370,7 @@ const jobs = await prisma.job.findMany({
 
 ```bash
 # Find process using port
-lsof -i :3000
+lsof -i :6000
 
 # Kill process
 kill -9 <PID>

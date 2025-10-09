@@ -89,16 +89,16 @@ pnpm dev
 ```
 
 This will start:
-- **Frontend** at `http://localhost:3000`
-- **Backend API** at `http://localhost:3001`
-- **Metrics** at `http://localhost:3001/metrics`
+- **Frontend** at `http://localhost:6000`
+- **Backend API** at `http://localhost:6001`
+- **Metrics** at `http://localhost:6001/metrics`
 
 ### Step 5: Verify Installation
 
 Open your browser and visit:
-- **Application**: http://localhost:3000
-- **Health Check**: http://localhost:3001/health
-- **Ready Check**: http://localhost:3001/ready
+- **Application**: http://localhost:6000
+- **Health Check**: http://localhost:6001/health
+- **Ready Check**: http://localhost:6001/ready
 
 You should see the login page!
 
@@ -182,18 +182,18 @@ docker-compose up -d --build
 
 ### Port Already in Use
 
-**Error**: `EADDRINUSE: address already in use :::3000`
+**Error**: `EADDRINUSE: address already in use :::6000`
 
 **Solution**:
 ```bash
 # Find process using port 3000
-lsof -ti:3000
+lsof -ti:6000
 
 # Kill the process (replace <PID> with actual number)
 kill -9 <PID>
 
 # Or for port 3001
-lsof -ti:3001 | xargs kill -9
+lsof -ti:6001 | xargs kill -9
 ```
 
 ### Database Connection Failed
@@ -283,7 +283,7 @@ The application uses JWT authentication. You can:
 
 **Option A**: Use the registration endpoint
 ```bash
-curl -X POST http://localhost:3001/trpc/auth.register \
+curl -X POST http://localhost:6001/trpc/auth.register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@jenkinds.io",
@@ -301,7 +301,7 @@ pnpm db:studio
 
 ### 4. Explore the Application
 
-Visit http://localhost:3000 and login with your credentials!
+Visit http://localhost:6000 and login with your credentials!
 
 **Available Pages**:
 - `/dashboard` - Overview of Jenkins jobs and builds
@@ -327,7 +327,7 @@ Visit http://localhost:9090 to access Prometheus UI
 
 ### Grafana Dashboards
 
-Visit http://localhost:3001 (default login: admin/admin)
+Visit http://localhost:6001 (default login: admin/admin)
 
 Import the pre-configured dashboard from `prometheus.yml`
 
@@ -397,8 +397,8 @@ Use this checklist to verify your setup:
 - [ ] `docker-compose up -d` successful
 - [ ] `pnpm db:migrate` successful
 - [ ] `pnpm dev` starts both servers
-- [ ] Can access http://localhost:3000
-- [ ] Can access http://localhost:3001/health
+- [ ] Can access http://localhost:6000
+- [ ] Can access http://localhost:6001/health
 - [ ] Jenkins credentials configured
 - [ ] Can login to the application
 

@@ -158,8 +158,8 @@ We successfully transformed JenKinds from a placeholder application into a funct
 ## 📊 Current System State
 
 ### Running Services
-- **Frontend**: http://localhost:3000 (Vite dev server)
-- **Backend**: http://0.0.0.0:3001 (Fastify + tRPC)
+- **Frontend**: http://localhost:6000 (Vite dev server)
+- **Backend**: http://0.0.0.0:6001 (Fastify + tRPC)
 - **Redis**: Connected and operational
 - **Database**: SQLite file with 2 users, 0 Jenkins instances
 
@@ -206,7 +206,7 @@ pnpm dev
 ```
 
 ### 2. Access the UI
-Open browser to: http://localhost:3000
+Open browser to: http://localhost:6000
 
 ### 3. Log In
 Use admin credentials:
@@ -322,7 +322,7 @@ JenKinds/
 3. Copy `.env.example` to `.env` (if exists)
 4. Run `pnpm prisma generate`
 5. Run `pnpm dev`
-6. Open http://localhost:3000
+6. Open http://localhost:6000
 7. Log in with admin credentials
 
 ---

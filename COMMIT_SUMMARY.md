@@ -270,7 +270,7 @@ pnpm dev
 
 ### 2. Navigate to Smart Log Analyzer
 ```
-1. Go to http://localhost:3000
+1. Go to http://localhost:6000
 2. Login with your credentials
 3. Go to Jobs page
 4. Click on any job
@@ -287,7 +287,7 @@ pnpm dev
 
 ### 4. Check Agents Page
 ```
-Go to http://localhost:3000/agents
+Go to http://localhost:6000/agents
 - View all agents
 - Filter by status
 - Search by name
