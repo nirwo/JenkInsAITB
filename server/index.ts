@@ -44,36 +44,40 @@ const server = Fastify({
 
 async function main() {
   try {
-    // Register plugins with very permissive CORS for tRPC auth
-    await server.register(cors, {
-      origin: (origin, cb) => {
-        // Allow all origins
-        logger.info(`CORS request from origin: ${origin}`);
-        cb(null, true);
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
-      allowedHeaders: [
-        'Content-Type', 
-        'Authorization', 
-        'x-trpc-source',
-        'x-requested-with',
-        'accept',
-        'origin',
-        'cache-control',
-        'user-agent',
-        'referer',
-        'access-control-allow-origin',
-        'access-control-allow-methods',
-        'access-control-allow-headers'
-      ],
-      exposedHeaders: ['set-cookie'],
-      preflightContinue: false,
-      optionsSuccessStatus: 204,
+    // Add raw CORS headers manually to bypass plugin restrictions
+    server.addHook('onRequest', async (request, reply) => {
+      const origin = request.headers.origin || '*';
+      reply.header('Access-Control-Allow-Origin', origin);
+      reply.header('Access-Control-Allow-Credentials', 'true');
+      reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
+      reply.header('Access-Control-Allow-Headers', '*');
+      reply.header('Access-Control-Expose-Headers', '*');
+      reply.header('Access-Control-Max-Age', '86400');
+      
+      // Handle preflight requests
+      if (request.method === 'OPTIONS') {
+        reply.status(200).send();
+      }
     });
 
+    // Still register CORS plugin but with maximum permissiveness as fallback
+    await server.register(cors, {
+      origin: true,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+      allowedHeaders: '*',
+      exposedHeaders: '*',
+      preflightContinue: false,
+      optionsSuccessStatus: 200,
+    });
+
+    // Disable helmet completely to avoid any CORS interference
     await server.register(helmet, {
       contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false,
+      originAgentCluster: false,
     });
 
     await server.register(rateLimit, {
