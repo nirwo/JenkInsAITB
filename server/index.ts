@@ -16,6 +16,7 @@ import { JenkinsSyncService } from './modules/jenkins/jenkins-sync.service';
 import { prisma } from './infrastructure/database/prisma';
 import Redis from 'ioredis';
 import path from 'path';
+import fs from 'fs';
 
 const PORT = Number(process.env.API_PORT) || 6001;
 const HOST = '0.0.0.0';
@@ -77,9 +78,26 @@ async function main() {
 
     // Serve static files in production
     if (process.env.NODE_ENV === 'production') {
-      // In compiled CommonJS, __dirname is available
+      // Resolve static path relative to the project root
       const staticPath = path.resolve(process.cwd(), 'dist');
-      logger.info(`Serving static files from: ${staticPath}`);
+      const indexPath = path.join(staticPath, 'index.html');
+      
+      logger.info(`Static files configuration:`);
+      logger.info(`  - Static path: ${staticPath}`);
+      logger.info(`  - Index file: ${indexPath}`);
+      logger.info(`  - Static path exists: ${fs.existsSync(staticPath)}`);
+      logger.info(`  - Index file exists: ${fs.existsSync(indexPath)}`);
+      
+      if (!fs.existsSync(staticPath)) {
+        logger.error(`❌ Static files directory not found: ${staticPath}`);
+        logger.error(`   Current working directory: ${process.cwd()}`);
+        logger.error(`   Please run 'pnpm build' to create the dist/ directory`);
+      } else if (!fs.existsSync(indexPath)) {
+        logger.error(`❌ index.html not found: ${indexPath}`);
+        logger.error(`   Please run 'pnpm build:client' to create the frontend build`);
+      } else {
+        logger.info(`✅ Static files ready to serve from: ${staticPath}`);
+      }
       
       await server.register(staticFiles, {
         root: staticPath,
@@ -88,10 +106,11 @@ async function main() {
 
       // Fallback to index.html for SPA routing
       server.setNotFoundHandler(async (request, reply) => {
-        if (request.url.startsWith('/trpc') || request.url.startsWith('/health') || request.url.startsWith('/ready')) {
+        if (request.url.startsWith('/trpc') || request.url.startsWith('/health') || request.url.startsWith('/ready') || request.url.startsWith('/metrics')) {
           reply.code(404).send({ error: 'Not Found' });
           return;
         }
+        logger.info(`SPA fallback for: ${request.url} -> index.html`);
         return reply.sendFile('index.html');
       });
     }
