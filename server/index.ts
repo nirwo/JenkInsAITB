@@ -90,7 +90,7 @@ async function main() {
     
     await server.register(metricsPlugin);
 
-    // Register tRPC router
+    // Register tRPC router with explicit response handler
     await server.register(fastifyTRPCPlugin, {
       prefix: '/trpc',
       trpcOptions: {
@@ -100,6 +100,19 @@ async function main() {
           logger.error(`Error in tRPC handler on path '${opts.path}':`, opts.error);
           logger.error(`Request origin: ${opts.req.headers.origin}`);
           logger.error(`Request method: ${opts.req.method}`);
+        },
+        responseMeta(opts: any) {
+          const { ctx } = opts;
+          // Force CORS headers on every response
+          return {
+            headers: {
+              'access-control-allow-origin': ctx?.req?.headers?.origin || '*',
+              'access-control-allow-credentials': 'true',
+              'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH',
+              'access-control-allow-headers': '*',
+              'access-control-expose-headers': '*',
+            },
+          };
         },
       },
     });
