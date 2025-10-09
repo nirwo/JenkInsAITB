@@ -89,14 +89,54 @@ async function createAdminUser() {
       process.exit(1);
     }
     
+    // Validate username
+    if (username.length < 3) {
+      console.error('\n❌ Username must be at least 3 characters long!');
+      process.exit(1);
+    }
+    
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      console.error('\n❌ Username can only contain letters, numbers, hyphens, and underscores!');
+      process.exit(1);
+    }
+    
+    // Validate email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      console.error('\n❌ Invalid email format!');
+      process.exit(1);
+    }
+    
+    // Validate password
     if (password !== confirmPassword) {
       console.error('\n❌ Passwords do not match!');
       process.exit(1);
     }
     
-    if (password.length < 6) {
-      console.error('\n❌ Password must be at least 6 characters long!');
+    if (password.length < 8) {
+      console.error('\n❌ Password must be at least 8 characters long!');
+      console.error('   Recommendation: Use 12+ characters with mixed case, numbers, and symbols');
       process.exit(1);
+    }
+    
+    // Check password strength
+    const hasLower = /[a-z]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSymbol = /[^a-zA-Z0-9]/.test(password);
+    
+    const strengthScore = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+    
+    if (strengthScore < 3) {
+      console.error('\n⚠️  Password is weak!');
+      console.error('   Recommendation: Include uppercase, lowercase, numbers, and symbols');
+      const proceed = await question('Continue anyway? (y/N): ');
+      if (proceed.toLowerCase() !== 'y') {
+        console.log('❌ Operation cancelled');
+        process.exit(0);
+      }
+    } else {
+      const strength = strengthScore === 4 ? 'Strong' : 'Medium';
+      console.log(`\n✓ Password strength: ${strength}`);
     }
     
     // Check if user exists
@@ -151,7 +191,7 @@ async function createAdminUser() {
     console.log(`  Email:    ${user.email}`);
     console.log(`  Role:     ${user.role}`);
     console.log('\n═══════════════════════════════════════════════════════════════\n');
-    console.log('🚀 You can now login at: http://localhost:3000\n');
+    console.log('🚀 You can now login at: http://localhost:9011\n');
     
   } catch (error) {
     console.error('\n❌ Error creating admin user:', error);

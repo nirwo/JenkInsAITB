@@ -73,16 +73,15 @@ async function main() {
       }
     });
     
-    // Add onSend hook to ensure CORS headers on ALL responses (last resort)
+        // Add onSend hook to ensure CORS headers on ALL responses (including errors)
     server.addHook('onSend', async (request, reply, payload) => {
       const origin = request.headers.origin || '*';
-      if (!reply.hasHeader('Access-Control-Allow-Origin')) {
-        reply.header('Access-Control-Allow-Origin', origin);
-        reply.header('Access-Control-Allow-Credentials', 'true');
-        reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
-        reply.header('Access-Control-Allow-Headers', '*');
-        reply.header('Access-Control-Expose-Headers', '*');
-      }
+      // Always set CORS headers, even if already present (override)
+      reply.header('Access-Control-Allow-Origin', origin);
+      reply.header('Access-Control-Allow-Credentials', 'true');
+      reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD');
+      reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+      reply.header('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
       return payload;
     });
 
