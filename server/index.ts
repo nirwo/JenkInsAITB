@@ -48,6 +48,8 @@ async function main() {
     await server.register(cors, {
       origin: process.env.NODE_ENV === 'production' ? true : (process.env.APP_URL || 'http://localhost:6000'),
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'x-trpc-source'],
     });
 
     await server.register(helmet, {
