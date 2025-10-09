@@ -1,235 +1,119 @@
-# ✅ Port Configuration Updated to 9010 Range# Port Configuration - Problem Solved! ✅
+# Port Configuration - Problem Solved! ✅
 
-
-
-**Date:** October 9, 2025  ## The Issue
-
-**Status:** ✅ Complete and Tested
+## The Issue
 
 When running `pnpm start` (production mode), the server wasn't reading port values from `.env` - it was using hardcoded defaults instead of the ports configured with the automation script.
 
----
-
 **Root Cause:** Node.js doesn't automatically load `.env` files. Development mode worked because `tsx` (the TypeScript runner) loads `.env`, but production mode uses plain `node` which doesn't.
 
-## Port Change Summary
-
 ---
 
-### Previous Ports (6000 Range - Unsafe ❌)
+## The Solution
 
-- Frontend: 6000## The Solution
-
-- Backend: 6001  
-
-- Grafana: 6002### 1. **Added dotenv Package**
-
+### 1. **Added dotenv Package**
 ```bash
-
-**Why unsafe?** Port 6000 is blocked by Chrome/Firefox (X11 conflict)pnpm add dotenv
-
+pnpm add dotenv
 ```
 
-### New Ports (9010 Range - Safe ✅)
-
-- **Frontend: 9010**### 2. **Load .env at Server Startup**
-
-- **Backend: 9011**```typescript
-
-- **Grafana: 9012**// server/index.ts (top of file)
-
+### 2. **Load .env at Server Startup**
+```typescript
+// server/index.ts (top of file)
 import { config } from 'dotenv';
-
----config(); // Load .env file at startup
-
+config(); // Load .env file at startup
 ```
-
-## Quick Reference
 
 Now when you run `pnpm start`, it automatically loads `.env` and uses the correct ports!
 
-### Access URLs
+---
+
+## How Port Configuration Works Now
+
+### Quick Start
+```bash
+# Change ports
+pnpm ports 8000
+
+# Rebuild
+pnpm build
+
+# Run in production - NOW WORKS! ✅
+pnpm start
+```
+
+### What Happens
+1. **Development Mode** (`pnpm dev`):
+   - ✅ Works: `tsx` loads `.env` automatically
+   - Reads `PORT=6000` and `API_PORT=6001`
+
+2. **Production Mode** (`pnpm start`):
+   - ✅ **NOW WORKS**: `dotenv` loads `.env` on startup
+   - Reads `PORT=6000` and `API_PORT=6001`
+   - Server listens on correct ports!
 
 ---
 
-**Production (Single Server on 9011):**
-
-```## How Port Configuration Works Now
-
-http://10.100.102.29:9011
-
-http://localhost:9011### Quick Start
-
-``````bash
-
-# Change ports
-
-**Development (Two Servers):**pnpm ports 8000
-
-```
-
-Frontend: http://10.100.102.29:9010# Rebuild
-
-Backend:  http://10.100.102.29:9011pnpm build
-
-```
-
-# Run in production - NOW WORKS! ✅
-
-### Commandspnpm start
-
-```
+## Testing Verification
 
 ```bash
-
-# Production### What Happens
-
-pnpm build && NODE_ENV=production pnpm start1. **Development Mode** (`pnpm dev`):
-
-   - ✅ Works: `tsx` loads `.env` automatically
-
-# Development (local)   - Reads `PORT=6000` and `API_PORT=6001`
-
-pnpm dev
-
-2. **Production Mode** (`pnpm start`):
-
-# Development (remote access)   - ✅ **NOW WORKS**: `dotenv` loads `.env` on startup
-
-pnpm dev:remote   - Reads `PORT=6000` and `API_PORT=6001`
-
-   - Server listens on correct ports!
-
-# Test
-
-./scripts/test-cors-complete.sh---
-
-curl http://localhost:9011/health
-
-```## Testing Verification
-
-
-
----```bash
-
 # Build the application
+pnpm build
 
-## Files Updatedpnpm build
-
-
-
-✅ Automated by `configure-ports.cjs`:# Start in production mode
-
-- `.env` and `.env.example`pnpm start
-
-- `vite.config.ts````
-
-- `server/index.ts`
-
-- `Dockerfile` and `docker-compose.yml`**Expected Output:**
-
+# Start in production mode
+pnpm start
 ```
 
-✅ Manual updates:🚀 Server listening on http://0.0.0.0:6001
-
-- `scripts/test-cors-complete.sh````
-
-- `.env` URLs with machine IP
+**Expected Output:**
+```
+🚀 Server listening on http://0.0.0.0:6001
+```
 
 If you changed ports:
-
----```bash
-
+```bash
 pnpm ports 7500
-
-## Testing Resultspnpm build
-
+pnpm build
 pnpm start
+# 🚀 Server listening on http://0.0.0.0:7501
+```
 
-```bash# 🚀 Server listening on http://0.0.0.0:7501
+---
 
-✅ Server listening on http://0.0.0.0:9011```
+## Complete Port Workflow
 
-✅ Health check: {"status":"ok"}
-
-✅ CORS tests: All passing---
-
-✅ Remote access: Working
-
-```## Complete Port Workflow
-
-
-
----### Step 1: Configure Ports
-
+### Step 1: Configure Ports
 ```bash
-
-## Change Ports in Future# Use the automated script
-
+# Use the automated script
 pnpm ports 6000    # Frontend: 6000, API: 6001, Grafana: 6002
+```
 
-```bash```
-
-# Use automated tool
-
-node scripts/configure-ports.cjs <new-port>### Step 2: Rebuild
-
+### Step 2: Rebuild
 ```bash
+pnpm build
+```
 
-# Example: Change to 8000 rangepnpm build
-
-node scripts/configure-ports.cjs 8000```
-
-# Frontend: 8000, Backend: 8001, Grafana: 8002
-
-```### Step 3: Run
-
+### Step 3: Run
 ```bash
-
----# Development (frontend + backend separate)
-
+# Development (frontend + backend separate)
 pnpm dev           # ✅ Loads .env
 
-## Troubleshooting
-
 # Production (single server serves both)
+pnpm start         # ✅ NOW loads .env + serves frontend
+pnpm start:open    # ✅ Starts server + opens browser
+```
 
-**Port in use:**pnpm start         # ✅ NOW loads .env + serves frontend
-
-```bashpnpm start:open    # ✅ Starts server + opens browser
-
-lsof -i :9011```
-
-kill -9 <PID>
-
-```### Step 4: Verify
-
+### Step 4: Verify
 ```bash
+# Check frontend (now served by backend)
+curl http://localhost:6001/
 
-**Can't access remotely:**# Check frontend (now served by backend)
-
-```bashcurl http://localhost:6001/
-
-# Check binding
-
-netstat -an | grep 9011  # Should show *.9011# Check API health
-
+# Check API health
 curl http://localhost:6001/health
 
-# Allow through firewall (macOS)
+# Check API metrics
+curl http://localhost:6001/metrics
 
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/local/bin/node# Check API metrics
-
-```curl http://localhost:6001/metrics
-
-
-
----# Open in browser
-
+# Open in browser
 open http://localhost:6001
-
-**Status:** ✅ Migration complete, all services operational on ports 9010-9012```
-
+```
 
 ---
 
