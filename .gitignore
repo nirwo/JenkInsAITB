@@ -1,168 +1,50 @@
 # Dependencies
 node_modules/
-.pnp
-.pnp.js
 .pnpm-store/
 
-# Testing
-coverage/
-.nyc_output/
-playwright-report/
-test-results/
-*.spec.ts.snap
-
-# Production
+# Build output
 dist/
 build/
-out/
+*.tsbuildinfo
 
-# Environment variables - SENSITIVE!
+# Environment files
 .env
-.env.*
-!.env.example
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.production
+.env.*.local
 
-# Sensitive Configuration Files
-config/local.json
-config/production.json
-secrets.json
-credentials.json
-
-# API Keys and Tokens - CRITICAL!
-*.pem
-*.key
-*.cert
-*.crt
-*.p12
-*.pfx
-*_rsa
-*_rsa.pub
-*.ssh
-
-# Jenkins Credentials
-jenkins.token
-.jenkins-credentials
-api-token.txt
-
-# Logs (exclude the root logs directory, but not src/features/logs)
-/logs/
+# Logs
+logs/
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
+server.log
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# IDE
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
 
-# Misc
-.turbo
-.cache
-.parcel-cache
-.next
-.nuxt
-.vercel
-.eslintcache
-.stylelintcache
+# OS
+.DS_Store
+Thumbs.db
 
-# Database - SENSITIVE!
-*.db
-*.sqlite
-*.sqlite3
-*.db-shm
-*.db-wal
+# Testing
+coverage/
+.nyc_output/
+
+# Prisma
 prisma/dev.db
 prisma/dev.db-journal
-prisma/*.db
-migrations/*.sql
-
-# Backup files
-*.bak
-*.backup
-*.old
-*.orig
 
 # Temporary files
-tmp/
-temp/
 *.tmp
-.temp/
+*.temp
+*.bak
+backups/
 
-# Docker
-.dockerignore
-docker-compose.override.yml
-.docker/
-
-# OS
-Thumbs.db
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-
-# AI/LLM API Keys
-.openai
-.anthropic
-openai.key
-anthropic.key
-
-# Session and Auth tokens
-.session
-session.json
-token.json
-refresh_token.json
-
-# User uploaded content (if applicable)
-uploads/
-user-data/
-
-# Local development overrides
-local-overrides/
-.local/
-
-# Performance and profiling
-.profile
-*.cpuprofile
-*.heapprofile
-*.heapsnapshot
-
-# Security scans
-.snyk
-snyk.log
-
-# Package manager locks (optional - some teams commit these)
-# Uncomment if you want to ignore lock files:
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
-
-# macOS
-.AppleDouble
-.LSOverride
-Icon
-._*
-
-# Windows
-[Dd]esktop.ini
-$RECYCLE.BIN/
-
-# Linux
-.directory
-.fuse_hidden*
+# Debug
+debug.log
+.pnpm-debug.log

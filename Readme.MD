@@ -382,6 +382,40 @@ docker-compose up --build
 # Grafana: http://localhost:6002
 ```
 
+### 🐧 Ubuntu Deployment
+
+JenKinds provides specialized tools for Ubuntu server deployment. If you're deploying on Ubuntu and experiencing issues (especially when it works on macOS but not Ubuntu), use these diagnostic tools:
+
+```bash
+# 1. Run comprehensive diagnostics
+./scripts/diagnose-ubuntu.sh
+
+# 2. Test tRPC connectivity specifically
+./scripts/test-trpc-ubuntu.sh
+
+# 3. Run sanity checks
+./scripts/sanity-check.sh
+```
+
+**Common Ubuntu Issues:**
+- ❌ `/trpc` returns 404 → Firewall or build issues
+- ❌ CORS errors → Browser caching or reverse proxy stripping headers
+- ❌ Connection refused → Wrong IP or firewall blocking
+- ❌ Database errors → File permissions on SQLite
+
+**Quick Fix:**
+```bash
+# Complete rebuild and restart
+pkill -f "node dist/server"
+pnpm install
+pnpm build:server
+pnpm build
+sudo ufw allow 9011
+NODE_ENV=production node dist/server/index.js > server.log 2>&1 &
+```
+
+📖 **See [UBUNTU_CHECKLIST.md](./UBUNTU_CHECKLIST.md) for comprehensive Ubuntu deployment guide**
+
 ---
 
 ## 💻 Development Guidelines

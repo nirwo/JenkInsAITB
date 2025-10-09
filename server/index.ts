@@ -108,9 +108,27 @@ async function main() {
         router: appRouter,
         createContext,
         onError(opts: any) {
-          logger.error(`Error in tRPC handler on path '${opts.path}':`, opts.error);
-          logger.error(`Request origin: ${opts.req.headers.origin}`);
-          logger.error(`Request method: ${opts.req.method}`);
+          const { error, type, path, input, ctx } = opts;
+          logger.error(`❌ tRPC Error on ${type} '${path}':`, error.message);
+          logger.error(`   Origin: ${ctx?.req?.headers?.origin || 'none'}`);
+          logger.error(`   Method: ${ctx?.req?.method || 'unknown'}`);
+          
+          // Log auth errors separately for debugging
+          if (error.code === 'UNAUTHORIZED') {
+            logger.error(`   Auth failure - check credentials`);
+            if (input) {
+              logger.error(`   Input (email): ${input.email || 'none'}`);
+            }
+          }
+          
+          // Ensure CORS headers on error responses
+          if (ctx?.res) {
+            const origin = ctx.req?.headers?.origin || '*';
+            ctx.res.header('Access-Control-Allow-Origin', origin);
+            ctx.res.header('Access-Control-Allow-Credentials', 'true');
+            ctx.res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
+            ctx.res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+          }
         },
         responseMeta(opts: any) {
           const { ctx } = opts;
@@ -120,8 +138,8 @@ async function main() {
               'access-control-allow-origin': ctx?.req?.headers?.origin || '*',
               'access-control-allow-credentials': 'true',
               'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH',
-              'access-control-allow-headers': '*',
-              'access-control-expose-headers': '*',
+              'access-control-allow-headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+              'access-control-expose-headers': 'Content-Length, Content-Type',
             },
           };
         },
