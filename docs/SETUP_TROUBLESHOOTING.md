@@ -584,7 +584,8 @@ Before asking for help, try these:
 - [ ] Close Prisma Studio if running
 - [ ] Check Jenkins is running
 - [ ] Clear cache: `pnpm store prune`
-- [ ] Check Node.js version: `node --version` (should be 18+)
+- [ ] Check Node.js version: `node --version` (should be 20+)
+  - If using nvm: `nvm use 20` or `nvm install 20 && nvm use 20`
 - [ ] Restart terminal/shell
 - [ ] Try manual setup: `pnpm setup:admin`
 

@@ -71,15 +71,17 @@ function Test-SystemRequirements {
     # Check Node.js
     if (Test-CommandExists "node") {
         $nodeVersion = (node --version).Replace('v', '').Split('.')[0]
-        if ([int]$nodeVersion -ge 18) {
+        if ([int]$nodeVersion -ge 20) {
             Write-Success "Node.js $(node --version) installed"
         } else {
-            Write-Error-Custom "Node.js version must be 18 or higher (current: $(node --version))"
+            Write-Error-Custom "Node.js version must be 20 or higher (current: $(node --version))"
+            Write-Info "If using nvm-windows, run: nvm use 20 (or nvm install 20 if not installed)"
             $allGood = $false
         }
     } else {
         Write-Error-Custom "Node.js is not installed"
         Write-Info "Install from: https://nodejs.org/"
+        Write-Info "Or if using nvm-windows: nvm install 20 && nvm use 20"
         $allGood = $false
     }
     

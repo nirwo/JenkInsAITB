@@ -63,7 +63,7 @@ This will:
 The full setup script will **interactively**:
 
 1. ✅ **Check System Requirements**
-   - Node.js 18+
+   - Node.js 20+
    - Git
    - pnpm (installs if missing)
 

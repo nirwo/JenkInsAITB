@@ -20,7 +20,8 @@ Complete guide for setting up the Jenkins AI Troubleshooting Bot application.
 
 ### Required
 
-- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Node.js** 20+ ([Download](https://nodejs.org/))
+  - If using nvm: `nvm install 20 && nvm use 20`
 - **Git** ([Download](https://git-scm.com/))
 - **pnpm** (installed automatically by setup script)
 

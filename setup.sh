@@ -82,15 +82,17 @@ check_system_requirements() {
     # Check Node.js
     if command_exists node; then
         local node_version=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
-        if [ "$node_version" -ge 18 ]; then
+        if [ "$node_version" -ge 20 ]; then
             print_success "Node.js $(node --version) installed"
         else
-            print_error "Node.js version must be 18 or higher (current: $(node --version))"
+            print_error "Node.js version must be 20 or higher (current: $(node --version))"
+            print_info "If using nvm, run: nvm use 20 (or nvm install 20 if not installed)"
             all_good=false
         fi
     else
         print_error "Node.js is not installed"
         print_info "Install from: https://nodejs.org/"
+        print_info "Or if using nvm: nvm install 20 && nvm use 20"
         all_good=false
     fi
     

@@ -153,7 +153,7 @@ pnpm db:reset           # Reset database (WARNING: deletes data)
                   ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  1. Check System Requirements                               │
-│     - Node.js 18+                                           │
+│     - Node.js 20+                                           │
 │     - Git                                                   │
 │     - pnpm (auto-install if missing)                        │
 └─────────────────┬───────────────────────────────────────────┘
