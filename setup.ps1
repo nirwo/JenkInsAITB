@@ -256,12 +256,66 @@ $pwd1
 $pwd1
 "@ | Out-File -FilePath ".\temp-admin-creds.txt" -Encoding UTF8
     
-    # Run the interactive script with input from file
-    Get-Content ".\temp-admin-creds.txt" | pnpm tsx scripts/create-admin-interactive.ts
-    
-    if ($LASTEXITCODE -ne 0) {
-        Write-Warning-Custom "Failed to create admin user"
-        Write-Info "You can create it later with: pnpm setup:admin"
+    # Try to run the interactive script
+    try {
+        Get-Content ".\temp-admin-creds.txt" | pnpm tsx scripts/create-admin-interactive.ts 2>$null
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Success "Admin user created successfully!"
+        } else {
+            throw "TypeScript method failed"
+        }
+    } catch {
+        Write-Warning-Custom "TypeScript method failed, trying alternative..."
+        
+        # Fallback method using Node directly
+        $env:ADMIN_USER = $adminUsername
+        $env:ADMIN_EMAIL = $adminEmail
+        $env:ADMIN_PASS = $pwd1
+        
+        $nodeScript = @"
+const { PrismaClient } = require('./.prisma/client');
+const bcrypt = require('bcrypt');
+const prisma = new PrismaClient();
+
+(async () => {
+  try {
+    const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASS, 10);
+    const user = await prisma.user.upsert({
+      where: { username: process.env.ADMIN_USER },
+      update: { passwordHash: hashedPassword },
+      create: {
+        username: process.env.ADMIN_USER,
+        email: process.env.ADMIN_EMAIL,
+        passwordHash: hashedPassword,
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'ADMIN',
+      },
+    });
+    console.log('✓ Admin user created:', user.username);
+    process.exit(0);
+  } catch (error) {
+    console.error('✗ Error:', error.message);
+    process.exit(1);
+  } finally {
+    await prisma.`$disconnect();
+  }
+})();
+"@
+        
+        $nodeScript | node
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Success "Admin user created via fallback method!"
+        } else {
+            Write-Error-Custom "Both methods failed to create admin user"
+            Write-Info "You can create it manually later with: pnpm setup:admin"
+        }
+        
+        Remove-Item Env:\ADMIN_USER -ErrorAction SilentlyContinue
+        Remove-Item Env:\ADMIN_EMAIL -ErrorAction SilentlyContinue
+        Remove-Item Env:\ADMIN_PASS -ErrorAction SilentlyContinue
     }
     
     Remove-Item ".\temp-admin-creds.txt" -ErrorAction SilentlyContinue

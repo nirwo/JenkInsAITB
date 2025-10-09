@@ -265,14 +265,60 @@ $admin_password
 EOF
     
     # Run the interactive script with input from file
-    pnpm tsx scripts/create-admin-interactive.ts < /tmp/admin-creds.txt || {
-        print_error "Failed to create admin user"
-        print_info "You can create it later with: pnpm setup:admin"
-        rm -f /tmp/admin-creds.txt
-        return 0
-    }
+    if pnpm tsx scripts/create-admin-interactive.ts < /tmp/admin-creds.txt 2>/dev/null; then
+        print_success "Admin user created successfully!"
+    else
+        print_warning "TypeScript method failed, trying alternative..."
+        # Fallback: Use Prisma directly
+        export ADMIN_USER="$admin_username"
+        export ADMIN_EMAIL="$admin_email"
+        export ADMIN_PASS="$admin_password"
+        
+        node -e "
+        const { PrismaClient } = require('./.prisma/client');
+        const bcrypt = require('bcrypt');
+        const prisma = new PrismaClient();
+        
+        (async () => {
+          try {
+            const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASS, 10);
+            const user = await prisma.user.upsert({
+              where: { username: process.env.ADMIN_USER },
+              update: { passwordHash: hashedPassword },
+              create: {
+                username: process.env.ADMIN_USER,
+                email: process.env.ADMIN_EMAIL,
+                passwordHash: hashedPassword,
+                firstName: 'Admin',
+                lastName: 'User',
+                role: 'ADMIN',
+              },
+            });
+            console.log('✓ Admin user created:', user.username);
+            process.exit(0);
+          } catch (error) {
+            console.error('✗ Error:', error.message);
+            process.exit(1);
+          } finally {
+            await prisma.\$disconnect();
+          }
+        })();
+        " && print_success "Admin user created via fallback method!" || {
+            print_error "Both methods failed to create admin user"
+            print_info "You can create it manually later with: pnpm setup:admin"
+            print_info "Or use: ./scripts/create-admin.sh"
+        }
+        
+        unset ADMIN_USER ADMIN_EMAIL ADMIN_PASS
+    fi
     
     rm -f /tmp/admin-creds.txt
+    
+    echo ""
+    print_info "Login credentials:"
+    echo -e "  ${CYAN}Username:${NC} $admin_username"
+    echo -e "  ${CYAN}Email:${NC} $admin_email"
+    echo ""
     
     print_success "Admin user created successfully!"
     echo ""
