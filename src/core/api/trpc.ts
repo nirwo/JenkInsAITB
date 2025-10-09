@@ -12,6 +12,12 @@ export const trpcClient = trpc.createClient({
     httpBatchLink({
       url: `${API_URL}/trpc`,
       transformer: superjson,
+      fetch: (url, options) => {
+        return fetch(url, {
+          ...options,
+          credentials: 'include',
+        });
+      },
       headers() {
         const token = localStorage.getItem('accessToken');
         return {
@@ -28,6 +34,12 @@ export const trpcVanilla = createTRPCProxyClient<AppRouter>({
     httpBatchLink({
       url: `${API_URL}/trpc`,
       transformer: superjson,
+      fetch: (url, options) => {
+        return fetch(url, {
+          ...options,
+          credentials: 'include',
+        });
+      },
       headers() {
         const token = localStorage.getItem('accessToken');
         return {

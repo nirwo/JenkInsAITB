@@ -46,7 +46,11 @@ async function main() {
   try {
     // Register plugins with very permissive CORS for tRPC auth
     await server.register(cors, {
-      origin: true, // Allow all origins
+      origin: (origin, cb) => {
+        // Allow all origins
+        logger.info(`CORS request from origin: ${origin}`);
+        cb(null, true);
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
       allowedHeaders: [
@@ -58,7 +62,10 @@ async function main() {
         'origin',
         'cache-control',
         'user-agent',
-        'referer'
+        'referer',
+        'access-control-allow-origin',
+        'access-control-allow-methods',
+        'access-control-allow-headers'
       ],
       exposedHeaders: ['set-cookie'],
       preflightContinue: false,
