@@ -209,40 +209,28 @@ pnpm ports 8000
 
 When deploying to production, ensure:
 
-1. **Environment variables are set:**
+1. **Build the application:**
+   ```bash
+   pnpm build
+   ```
+
+2. **Environment variables are set:**
    ```bash
    export API_PORT=6001
-   export PORT=6000
+   export NODE_ENV=production
    ```
 
-2. **Firewall rules allow traffic:**
+3. **Start the production server:**
    ```bash
-   # Example for Ubuntu
-   sudo ufw allow 6000/tcp
-   sudo ufw allow 6001/tcp
+   pnpm start        # Backend serves frontend + API
+   # OR
+   pnpm start:open   # Starts server and opens browser
    ```
 
-3. **Reverse proxy is configured:**
-   ```nginx
-   # Nginx example
-   server {
-       listen 80;
-       server_name your-domain.com;
-       
-       location / {
-           proxy_pass http://localhost:6000;
-       }
-       
-       location /api {
-           proxy_pass http://localhost:6001;
-       }
-   }
-   ```
-
-4. **Health checks use correct port:**
-   ```bash
-   curl http://localhost:6001/health
-   ```
+4. **Access the application:**
+   - **Frontend & API**: http://localhost:6001
+   - **Health Check**: http://localhost:6001/health
+   - **Metrics**: http://localhost:6001/metrics
 
 ---
 

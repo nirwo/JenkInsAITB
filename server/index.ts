@@ -6,6 +6,7 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
+import staticFiles from '@fastify/static';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import { appRouter } from './router';
 import { createContext } from './context';
@@ -14,6 +15,7 @@ import { metricsPlugin } from './common/middleware/metrics';
 import { JenkinsSyncService } from './modules/jenkins/jenkins-sync.service';
 import { prisma } from './infrastructure/database/prisma';
 import Redis from 'ioredis';
+import path from 'path';
 
 const PORT = Number(process.env.API_PORT) || 6001;
 const HOST = '0.0.0.0';
@@ -72,6 +74,27 @@ async function main() {
         },
       },
     });
+
+    // Serve static files in production
+    if (process.env.NODE_ENV === 'production') {
+      // In compiled CommonJS, __dirname is available
+      const staticPath = path.resolve(process.cwd(), 'dist');
+      logger.info(`Serving static files from: ${staticPath}`);
+      
+      await server.register(staticFiles, {
+        root: staticPath,
+        prefix: '/',
+      });
+
+      // Fallback to index.html for SPA routing
+      server.setNotFoundHandler(async (request, reply) => {
+        if (request.url.startsWith('/trpc') || request.url.startsWith('/health') || request.url.startsWith('/ready')) {
+          reply.code(404).send({ error: 'Not Found' });
+          return;
+        }
+        return reply.sendFile('index.html');
+      });
+    }
 
     // Health check endpoint
     server.get('/health', async () => {

@@ -92,23 +92,27 @@ pnpm build
 
 ### Step 3: Run
 ```bash
-# Development
+# Development (frontend + backend separate)
 pnpm dev           # ✅ Loads .env
 
-# Production
-pnpm start         # ✅ NOW loads .env
+# Production (single server serves both)
+pnpm start         # ✅ NOW loads .env + serves frontend
+pnpm start:open    # ✅ Starts server + opens browser
 ```
 
 ### Step 4: Verify
 ```bash
-# Check frontend
-curl http://localhost:6000
+# Check frontend (now served by backend)
+curl http://localhost:6001/
 
 # Check API health
 curl http://localhost:6001/health
 
 # Check API metrics
 curl http://localhost:6001/metrics
+
+# Open in browser
+open http://localhost:6001
 ```
 
 ---
