@@ -1,0 +1,132 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkinds
+  namespace: jenkinds
+  labels:
+    app: jenkinds
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkinds
+  template:
+    metadata:
+      labels:
+        app: jenkinds
+    spec:
+      containers:
+      - name: jenkinds
+        image: jenkinds:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9011
+          name: http
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: jenkinds-config
+              key: NODE_ENV
+        - name: API_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: jenkinds-config
+              key: API_PORT
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: jenkinds-config
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: jenkinds-config
+              key: REDIS_URL
+        - name: JENKINS_URL
+          valueFrom:
+            secretKeyRef:
+              name: jenkinds-secrets
+              key: JENKINS_URL
+        - name: JENKINS_USER
+          valueFrom:
+            secretKeyRef:
+              name: jenkinds-secrets
+              key: JENKINS_USER
+        - name: JENKINS_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: jenkinds-secrets
+              key: JENKINS_API_TOKEN
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jenkinds-secrets
+              key: OPENAI_API_KEY
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jenkinds-secrets
+              key: JWT_SECRET
+        - name: REFRESH_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jenkinds-secrets
+              key: REFRESH_TOKEN_SECRET
+        envFrom:
+        - configMapRef:
+            name: jenkinds-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: logs
+          mountPath: /app/logs
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9011
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 9011
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: jenkinds-data
+      - name: logs
+        persistentVolumeClaim:
+          claimName: jenkinds-logs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkinds-service
+  namespace: jenkinds
+  labels:
+    app: jenkinds
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9011
+    targetPort: 9011
+    protocol: TCP
+    name: http
+  selector:
+    app: jenkinds

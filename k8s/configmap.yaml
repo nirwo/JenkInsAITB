@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkinds-config
+  namespace: jenkinds
+data:
+  NODE_ENV: "production"
+  PORT: "9010"
+  API_PORT: "9011"
+  
+  # Database
+  DATABASE_URL: "file:/data/dev.db"
+  
+  # Redis
+  REDIS_URL: "redis://redis-service:6379"
+  REDIS_PASSWORD: ""
+  
+  # Jenkins Configuration
+  JENKINS_POLL_INTERVAL: "30000"
+  
+  # AI Services
+  OPENAI_MODEL: "gpt-4-turbo-preview"
+  OPENAI_MAX_TOKENS: "4096"
+  ENABLE_AI_ANALYSIS: "true"
+  
+  # Authentication
+  JWT_EXPIRES_IN: "24h"
+  REFRESH_TOKEN_EXPIRES_IN: "7d"
+  DISABLE_AUTH: "false"
+  
+  # Rate Limiting
+  RATE_LIMIT_WINDOW_MS: "900000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+  
+  # Logging
+  LOG_LEVEL: "info"
+  LOG_FILE_PATH: "/app/logs"
+  
+  # Monitoring
+  ENABLE_METRICS: "true"
+  METRICS_PORT: "9090"
+  ENABLE_TRACING: "false"
+  
+  # Features
+  MAX_LOG_SIZE_MB: "140"
+  LOG_PROCESSING_TIMEOUT: "30000"
+  ENABLE_CACHING: "true"
+  CACHE_TTL: "300"

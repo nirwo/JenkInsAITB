@@ -1148,6 +1148,24 @@ app.use('/api/', limiter);
 
 ## 🚢 Deployment
 
+> **🎉 NEW: Complete k3s/Kubernetes Deployment Available!**
+> 
+> We now have a production-ready Kubernetes deployment with automated scripts, monitoring, and complete documentation!
+> 
+> **📖 See [K8S_SETUP_SUMMARY.md](K8S_SETUP_SUMMARY.md) for the complete k8s deployment guide**
+> 
+> Quick start for k3s deployment:
+> ```bash
+> # 1. Update secrets
+> vi k8s/secrets.yaml
+> 
+> # 2. Deploy
+> cd k8s && ./deploy.sh
+> 
+> # 3. Access
+> kubectl port-forward -n jenkinds svc/jenkinds-service 9011:9011
+> ```
+
 ### Docker Production Build
 
 ```dockerfile

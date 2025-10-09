@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: jenkinds
+
+resources:
+  - namespace.yaml
+  - rbac.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - pvc.yaml
+  - redis.yaml
+  - deployment.yaml
+  - hpa.yaml
+  - ingress.yaml
+
+# Common labels applied to all resources
+commonLabels:
+  app.kubernetes.io/name: jenkinds
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/managed-by: kustomize
+
+# Image configuration
+images:
+  - name: jenkinds
+    newName: jenkinds
+    newTag: latest
+
+# ConfigMap generator (optional - can generate from files)
+# configMapGenerator:
+#   - name: jenkinds-config
+#     files:
+#       - config.json
+
+# Secret generator (optional - can generate from env files)
+# secretGenerator:
+#   - name: jenkinds-secrets
+#     envs:
+#       - .env.secrets
+
+# Patches for different environments
+patchesStrategicMerge: []
+# - patches/production.yaml
+# - patches/staging.yaml
+
+# Replicas (can be overridden per environment)
+# replicas:
+#   - name: jenkinds
+#     count: 2
