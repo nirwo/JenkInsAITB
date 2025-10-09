@@ -278,9 +278,37 @@ pnpm db:migrate
 # Seed development data (optional)
 pnpm db:seed
 
-# Start development servers
+# Start development servers (local only)
 pnpm dev
+
+# OR start with remote access (accessible via machine IP)
+pnpm dev:remote
 ```
+
+### 🌐 Development Modes
+
+#### Local Development
+```bash
+# Standard development mode (localhost only)
+pnpm dev
+
+# Access at:
+# Frontend: http://localhost:6000
+# Backend: http://localhost:6001
+```
+
+#### Remote Development
+```bash
+# Remote access mode (accessible from any device on network)
+pnpm dev:remote
+
+# Automatically detects your IP and configures environment
+# Access at:
+# Frontend: http://[your-machine-ip]:6000
+# Backend: http://[your-machine-ip]:6001
+```
+
+📖 **See [DEV_REMOTE_ACCESS.md](./DEV_REMOTE_ACCESS.md) for detailed remote development setup**
 
 ### 🔌 Port Configuration
 

@@ -12,14 +12,14 @@ export default defineConfig({
   ],
   server: {
     host: '0.0.0.0', // Listen on all network interfaces for remote access
-    port: 6000,
+    port: 9010,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:6001',
+        target: process.env.VITE_API_URL || 'http://localhost:9011',
         changeOrigin: true,
       },
       '/ws': {
-        target: process.env.VITE_API_URL?.replace('http', 'ws') || 'ws://localhost:6001',
+        target: process.env.VITE_API_URL?.replace('http', 'ws') || 'ws://localhost:9011',
         ws: true,
       },
     },

@@ -17,29 +17,29 @@ echo ""
 # Test 1: OPTIONS preflight
 echo "1️⃣  Testing OPTIONS Preflight Request"
 echo "   Endpoint: /trpc/auth.login"
-echo "   Origin: http://$MACHINE_IP:6001"
+echo "   Origin: http://$MACHINE_IP:9011"
 curl -X OPTIONS \
-  -H "Origin: http://$MACHINE_IP:6001" \
+  -H "Origin: http://$MACHINE_IP:9011" \
   -H "Access-Control-Request-Method: POST" \
   -H "Access-Control-Request-Headers: content-type" \
   -s -D - \
-  http://localhost:6001/trpc/auth.login | grep -i "access-control"
+  http://localhost:9011/trpc/auth.login | grep -i "access-control"
 echo ""
 
 # Test 2: POST request with CORS
 echo "2️⃣  Testing POST Request with CORS Headers"
 echo "   Endpoint: /trpc/auth.login"
 curl -X POST \
-  -H "Origin: http://$MACHINE_IP:6001" \
+  -H "Origin: http://$MACHINE_IP:9011" \
   -H "Content-Type: application/json" \
   -s -D - \
-  "http://localhost:6001/trpc/auth.login" \
+  "http://localhost:9011/trpc/auth.login" \
   -d '{"email":"test@example.com","password":"test123"}' | grep -i "access-control"
 echo ""
 
 # Test 3: GET request to CORS test endpoint
 echo "3️⃣  Testing CORS Test Endpoint"
-curl -s -H "Origin: http://$MACHINE_IP:6001" http://localhost:6001/cors-test | jq '.'
+curl -s -H "Origin: http://$MACHINE_IP:9011" http://localhost:9011/cors-test | jq '.'
 echo ""
 
 # Test 4: Different origin
@@ -48,12 +48,12 @@ curl -X OPTIONS \
   -H "Origin: http://example.com" \
   -H "Access-Control-Request-Method: POST" \
   -s -D - \
-  http://localhost:6001/trpc/auth.login | grep -i "access-control-allow-origin"
+  http://localhost:9011/trpc/auth.login | grep -i "access-control-allow-origin"
 echo ""
 
 # Test 5: Check server health
 echo "5️⃣  Server Health Check"
-curl -s http://localhost:6001/health 2>/dev/null || echo "⚠️  Health endpoint not responding"
+curl -s http://localhost:9011/health 2>/dev/null || echo "⚠️  Health endpoint not responding"
 echo ""
 
 echo "✅ CORS Testing Complete!"
@@ -64,8 +64,8 @@ echo "   - access-control-allow-credentials should be 'true'"
 echo "   - access-control-allow-headers should be '*'"
 echo ""
 echo "🌐 Access your application at:"
-echo "   Local:  http://localhost:6001"
-echo "   Remote: http://$MACHINE_IP:6001"
+echo "   Local:  http://localhost:9011"
+echo "   Remote: http://$MACHINE_IP:9011"
 echo ""
 echo "💡 If browser still shows CORS errors:"
 echo "   1. Clear browser cache (Cmd+Shift+Delete)"

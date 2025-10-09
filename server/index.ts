@@ -19,7 +19,7 @@ import Redis from 'ioredis';
 import path from 'path';
 import fs from 'fs';
 
-const PORT = Number(process.env.API_PORT) || 6001;
+const PORT = Number(process.env.API_PORT) || 9011;
 const HOST = '0.0.0.0';
 
 // Initialize Redis
