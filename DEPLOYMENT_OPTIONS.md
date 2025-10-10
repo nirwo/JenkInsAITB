@@ -458,6 +458,19 @@ curl -fsSL https://raw.githubusercontent.com/nirwo/JenkInsAITB/master/k8s/init-k
 
 ---
 
+## ⚙️ Optional Features
+
+### AI Log Analysis (OpenAI)
+- **By default:** Disabled
+- **To enable:** Set `ENABLE_AI_ANALYSIS=true` and provide valid `OPENAI_API_KEY`
+- **Benefit:** AI-powered analysis of build failures and logs
+- **Cost:** ~$0.01-0.10 per analysis (depending on log size)
+- **Fallback:** If OpenAI is unavailable, app continues working with mock analysis
+
+The app will work perfectly fine without OpenAI - it just won't have AI-powered log analysis.
+
+---
+
 ## 🔒 Production Checklist
 
 Before going public:

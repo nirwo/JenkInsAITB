@@ -287,10 +287,11 @@ configure_secrets() {
     read -p "Jenkins Username: " JENKINS_USER
     read -p "Jenkins API Token: " JENKINS_TOKEN
     
-    # OpenAI
+    # OpenAI (Optional)
     echo ""
-    echo -e "${CYAN}OpenAI Configuration:${NC}"
-    read -p "OpenAI API Key (starts with sk-): " OPENAI_KEY
+    echo -e "${CYAN}OpenAI Configuration (Optional - press Enter to skip):${NC}"
+    log_info "AI analysis will be disabled if you skip this step"
+    read -p "OpenAI API Key (starts with sk-, or press Enter to skip): " OPENAI_KEY
     
     # JWT Secrets
     echo ""
@@ -325,6 +326,11 @@ configure_secrets() {
     fi
     if [ -n "$OPENAI_KEY" ]; then
         sed -i.bak "s|OPENAI_API_KEY:.*|OPENAI_API_KEY: \"$OPENAI_KEY\"|" "$SECRETS_FILE"
+        # Enable AI analysis in configmap
+        sed -i.bak "s|ENABLE_AI_ANALYSIS:.*|ENABLE_AI_ANALYSIS: \"true\"|" "$PROJECT_ROOT/k8s/configmap.yaml"
+        log_success "OpenAI configured - AI analysis enabled"
+    else
+        log_info "OpenAI skipped - AI analysis will be disabled"
     fi
     sed -i.bak "s|JWT_SECRET:.*|JWT_SECRET: \"$JWT_SECRET\"|" "$SECRETS_FILE"
     sed -i.bak "s|REFRESH_TOKEN_SECRET:.*|REFRESH_TOKEN_SECRET: \"$REFRESH_SECRET\"|" "$SECRETS_FILE"
