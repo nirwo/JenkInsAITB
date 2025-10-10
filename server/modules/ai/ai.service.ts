@@ -2,12 +2,24 @@ import OpenAI from 'openai';
 import axios from 'axios';
 import { logger } from '../../common/utils/logger';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 const ENABLE_AI = process.env.ENABLE_AI_ANALYSIS === 'true';
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4-turbo-preview';
+const HAS_API_KEY = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'placeholder' && process.env.OPENAI_API_KEY !== 'sk-your-openai-key-here';
+
+// Initialize OpenAI client only if we have a valid API key
+let openai: OpenAI | null = null;
+try {
+  if (HAS_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  } else {
+    logger.warn('OpenAI API key not configured - AI analysis will be disabled');
+  }
+} catch (error) {
+  logger.error('Failed to initialize OpenAI client:', error);
+  openai = null;
+}
 
 interface LogAnalysis {
   summary: string;
@@ -20,8 +32,8 @@ interface LogAnalysis {
 }
 
 export async function analyzeLogWithAI(buildUrl: string, jenkinsAuth?: { username: string; apiToken: string }): Promise<LogAnalysis> {
-  if (!ENABLE_AI) {
-    logger.warn('AI analysis is disabled');
+  if (!ENABLE_AI || !openai || !HAS_API_KEY) {
+    logger.info('AI analysis is disabled or OpenAI not configured - returning mock analysis');
     return getMockAnalysis();
   }
 
@@ -84,8 +96,12 @@ export async function analyzeLogWithAI(buildUrl: string, jenkinsAuth?: { usernam
       sentiment: result.sentiment || 'neutral',
     };
   } catch (error) {
-    logger.error('Error analyzing log with AI:', error);
-    throw error;
+    logger.error('Error analyzing log with AI - falling back to mock analysis:', error);
+    // Return mock analysis instead of throwing error
+    return {
+      ...getMockAnalysis(),
+      summary: 'AI analysis failed - OpenAI service unavailable or API key invalid',
+    };
   }
 }
 

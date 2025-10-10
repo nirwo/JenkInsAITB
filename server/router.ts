@@ -3,7 +3,7 @@ import { authRouter } from './modules/auth/auth.router';
 import { jobRouter } from './modules/jenkins/job.router';
 import { jenkinsRouter } from './modules/jenkins/jenkins.router';
 import { executorRouter } from './modules/executor/executor.router';
-import { logRouter } from './modules/logs/log.router';
+// import { logRouter } from './modules/logs/log.router';
 import { analyticsRouter } from './modules/analytics/analytics.router';
 
 export const appRouter = router({
@@ -11,7 +11,7 @@ export const appRouter = router({
   jenkins: jenkinsRouter,
   job: jobRouter,
   executor: executorRouter,
-  log: logRouter,
+  // log: logRouter,
   analytics: analyticsRouter,
 });
 

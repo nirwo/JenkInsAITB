@@ -1,0 +1,16 @@
+steps:
+  # Build the container image using Dockerfile.cloudrun
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/jenkinds:latest'
+      - '-f'
+      - 'Dockerfile.cloudrun'
+      - '.'
+    timeout: 1800s
+
+images:
+  - 'gcr.io/$PROJECT_ID/jenkinds:latest'
+
+timeout: 1800s

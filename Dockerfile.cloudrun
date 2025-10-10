@@ -1,0 +1,74 @@
+# Dockerfile optimized for Google Cloud Run
+# Build stage - includes all build dependencies
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy prisma schema first
+COPY prisma ./prisma
+
+# Install ALL dependencies (including dev dependencies for build)
+RUN pnpm install --frozen-lockfile
+
+# Generate Prisma client BEFORE building
+RUN npx prisma generate
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN pnpm build && pnpm build:server
+
+# Production stage - minimal image
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy prisma schema BEFORE installing dependencies
+COPY prisma ./prisma
+
+# Install production dependencies only (skip build scripts to avoid husky)
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+
+# Generate Prisma client in production stage
+RUN npx prisma generate
+
+# Copy built application from builder
+COPY --from=builder /app/dist ./dist
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Create directories and set permissions
+RUN mkdir -p /app/prisma /app/logs && \
+    chown -R nodejs:nodejs /app
+
+# Switch to non-root user
+USER nodejs
+
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Expose Cloud Run default port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Start the application
+CMD ["node", "dist/server/index.js"]
