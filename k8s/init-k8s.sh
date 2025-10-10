@@ -75,6 +75,32 @@ check_root() {
     fi
 }
 
+# Fix Python apt_pkg errors (common on Ubuntu)
+fix_python_apt() {
+    log_step "Fixing Python apt_pkg issues (if any)..."
+    
+    # Fix Python 3 apt module issues
+    if [ -f /usr/lib/python3/dist-packages/apt_pkg.cpython-*-x86_64-linux-gnu.so ]; then
+        PYTHON_VERSION=$(python3 --version 2>&1 | grep -oP '\d+\.\d+' || echo "3.10")
+        MAJOR_MINOR=$(echo $PYTHON_VERSION | tr -d '.')
+        
+        # Create symlinks if missing
+        if [ ! -f /usr/lib/python3/dist-packages/apt_pkg.cpython-${MAJOR_MINOR}-x86_64-linux-gnu.so ]; then
+            log_step "Creating Python apt_pkg symlinks..."
+            cd /usr/lib/python3/dist-packages/ 2>/dev/null
+            sudo ln -sf apt_pkg.cpython-*-x86_64-linux-gnu.so apt_pkg.so 2>/dev/null || true
+            cd - > /dev/null 2>&1
+        fi
+    fi
+    
+    # Fix command-not-found database errors
+    if [ -f /var/lib/command-not-found ]; then
+        sudo chmod -R a+r /var/lib/command-not-found 2>/dev/null || true
+    fi
+    
+    log_success "Python/apt fixes applied"
+}
+
 # Install system dependencies
 install_dependencies() {
     log_section "Installing System Dependencies"
@@ -84,11 +110,14 @@ install_dependencies() {
     
     case $OS in
         ubuntu|debian)
+            # Fix Python apt issues first
+            fix_python_apt
+            
             log_step "Updating package list..."
-            sudo apt-get update -qq
+            sudo apt-get update -qq 2>&1 | grep -v "python\|apt_pkg\|CommandNotFound" || true
             
             log_step "Installing required packages..."
-            sudo apt-get install -y -qq \
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
                 curl \
                 wget \
                 git \
@@ -98,11 +127,12 @@ install_dependencies() {
                 apt-transport-https \
                 software-properties-common \
                 jq \
-                > /dev/null 2>&1
+                openssl \
+                2>&1 | grep -v "python\|apt_pkg\|CommandNotFound" || true
             ;;
         centos|rhel|fedora)
             log_step "Installing required packages..."
-            sudo yum install -y curl wget git ca-certificates jq > /dev/null 2>&1
+            sudo yum install -y curl wget git ca-certificates jq openssl > /dev/null 2>&1
             ;;
         *)
             log_warning "Unknown OS: $OS. Proceeding with caution..."
@@ -215,8 +245,8 @@ install_nodejs() {
     fi
     
     log_step "Installing Node.js 20 LTS..."
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - > /dev/null 2>&1
-    sudo apt-get install -y nodejs > /dev/null 2>&1
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - 2>&1 | grep -v "python\|apt_pkg\|CommandNotFound" || true
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs 2>&1 | grep -v "python\|apt_pkg\|CommandNotFound" || true
     
     log_step "Installing pnpm..."
     sudo npm install -g pnpm@latest > /dev/null 2>&1
