@@ -19,10 +19,10 @@ data:
   # Jenkins Configuration
   JENKINS_POLL_INTERVAL: "30000"
   
-  # AI Services
-  OPENAI_MODEL: "gpt-4-turbo-preview"
+  # AI Services (Optional - set ENABLE_AI_ANALYSIS to "true" and provide OPENAI_API_KEY in secrets)
+  OPENAI_MODEL: "gpt-4o-mini"
   OPENAI_MAX_TOKENS: "4096"
-  ENABLE_AI_ANALYSIS: "true"
+  ENABLE_AI_ANALYSIS: "false"
   
   # Authentication
   JWT_EXPIRES_IN: "24h"
